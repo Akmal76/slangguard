@@ -159,7 +159,9 @@ $$
 
 ### Targets
 
-These are first estimates, not results. They will be revised after the baselines are done.
+These are first estimates, not results. After the baselines and the LoRA + replay runs they were
+kept as written: [results.md](results.md) checks each one, and also reports P1 after the last
+period, which separates the methods better than the targets do.
 
 | Metric | Target |
 | --- | --- |
