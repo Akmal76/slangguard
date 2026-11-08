@@ -68,7 +68,7 @@ Every tool is free. The only real limits are the weekly Kaggle GPU quota and lap
 | Model registry | MLflow | Laptop (Docker), from milestone 3 |
 | Drift detection | Evidently AI | Laptop |
 | Pipeline orchestration | Prefect | Laptop |
-| Prediction API | FastAPI, Uvicorn, ONNX Runtime (optional) | Laptop (Docker) |
+| Prediction API | FastAPI, Uvicorn (ONNX Runtime was not needed) | Laptop (Docker) |
 | Monitoring | Prometheus, Grafana | Laptop (Docker Compose) |
 | Testing and CI | pytest, Ruff, GitHub Actions | GitHub |
 | Demo | Gradio on Hugging Face Spaces | Free cloud |
@@ -170,6 +170,18 @@ period, which separates the methods better than the targets do.
 | Training time per update | Less than half of full retrain |
 | API latency (CPU, one sentence) | Under 200 ms |
 | Automated pipeline | From detected drift to a live new model with no manual step |
+
+**Measured for the API (milestone 4)**, one sentence at a time, 100 requests on a laptop
+(Apple Silicon, CPU only), after merging the LoRA adapter into the base model at start:
+
+| Where it runs | p50 | p95 | Memory |
+| --- | --- | --- | --- |
+| Directly with uvicorn | 30 ms | 34 ms | 680 MB |
+| In Docker (Linux VM on the Mac, 2 GB limit) | 60 ms | 70 ms | 967 MiB |
+
+The latency target is met with a wide margin, so ONNX Runtime was not needed. The Docker image is
+2.06 GB, almost all of it PyTorch. The first start downloads the model (about 480 MB, roughly
+5 minutes without a Hugging Face token) and a restart takes about 7 seconds.
 
 ## 9. Roadmap
 
