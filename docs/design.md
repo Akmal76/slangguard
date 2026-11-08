@@ -93,26 +93,28 @@ Public Indonesian sentiment datasets rarely have dates. So language change is
 **simulated**: each period uses text that is more informal than the one before.
 The README states this clearly.
 
-### Candidate datasets
+### Datasets
 
-License and format are checked before use.
+The full survey, with licenses and the reasons for each choice, is in [data.md](data.md).
 
-- **IndoNLU SmSA:** product and service reviews, 3 sentiment classes, fairly formal language.
-- **NusaX-Senti (Indonesian part):** 3-class sentiment text from a different source.
-- **Indonesian tweet sentiment datasets on Hugging Face:** more informal language.
-- **Colloquial Indonesian Lexicon:** a slang-to-formal dictionary, used to create more
-  informal versions of text.
+- **SmSA (IndoNLU):** formal reviews and comments, 3 sentiment classes.
+- **Indonesian Sentiment Twitter Dataset (IDSA):** informal tweets, 3 sentiment classes.
+- **Colloquial Indonesian Lexicon:** slang-to-formal word pairs, used in reverse to rewrite
+  text into heavier slang.
+
+IDSA and the lexicon have no stated license, so their text is never published. They are
+downloaded from the original source inside the pipeline, and the DVC remote is private.
 
 ### Periods
 
 | Period | Data | Language style |
 | --- | --- | --- |
-| P1 | Product reviews (SmSA) | Formal |
-| P2 | Text from another source (NusaX or tweets) | Mixed |
-| P3 | Informal tweets | Slang |
-| P4 | P3 text rewritten with the slang dictionary, plus made-up new words | Heavy slang (simulated future language) |
+| P1 | SmSA | Formal |
+| P2 | IDSA, part A | Real informal tweets |
+| P3 | IDSA, part B, rewritten with the lexicon at a moderate rate | Heavier slang |
+| P4 | IDSA, part C, rewritten at a high rate plus made-up new words | Simulated future slang |
 
-Each period has its own train, validation, and test split. Test sets from old periods
+The three IDSA parts share no tweets. Each period has its own train, validation, and test split. Test sets from old periods
 are always kept, to measure forgetting. They are never used for training or tuning.
 
 All periods use the same 3 labels. If a dataset has only 2 classes, it is dropped or
