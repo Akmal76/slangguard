@@ -105,6 +105,8 @@ The full survey, with licenses and the reasons for each choice, is in [data.md](
 
 IDSA and the lexicon have no stated license, so their text is never published. They are
 downloaded from the original source inside the pipeline, and the DVC remote is private.
+The authors have agreed to the use of their data here and to publishing the trained
+models (see [data.md](data.md), note 2), so models may go to Hugging Face Hub.
 
 ### Periods
 

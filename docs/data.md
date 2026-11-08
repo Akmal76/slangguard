@@ -41,6 +41,12 @@ separately.
    - never publishes the raw or transformed text in this repository or a public remote,
    - keeps the DVC remote private,
    - cites the original authors.
+
+   **Permission (8 Nov 2026).** Both authors were emailed and agreed to the use of their
+   data in this project and to publishing the models trained on it. This does not cover
+   redistributing the text, so the rules above stay: the data remains on the private remote,
+   and only trained models (such as the LoRA adapter on Hugging Face Hub) are published.
+   The emails are kept by the project owner and are not part of the repository.
 3. **NusaX overlaps with SmSA.** The NusaX card states it was sampled from SmSA. A check
    found that 287 of the 1,000 Indonesian rows match SmSA text exactly after lowercasing,
    9 of them inside the SmSA validation and test sets. Using it as a new period would
