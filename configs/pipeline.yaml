@@ -1,0 +1,12 @@
+# Settings for the retraining pipeline (drift check, retraining, promotion).
+
+drift:
+  # A new period counts as drifted when the AUC of the old-versus-new text classifier is
+  # above this value. It was set from controls on the period data (5 random samples of
+  # 1,500 texts each): the same period split into train and val scored 0.48 to 0.54, and the
+  # smallest real change (P2 to P3, a light slang rewrite) scored 0.65 to 0.69.
+  # Real data may need another value, so repeat that check before relying on it.
+  threshold: 0.60
+  # The check compares at most this many texts per side, to stay fast.
+  max_rows: 1500
+  seed: 42
