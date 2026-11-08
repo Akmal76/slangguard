@@ -11,6 +11,7 @@ kaggle.json
 
 # MLflow
 mlruns/
+mlflow.db
 mlartifacts/
 
 # Training outputs (weights, result files)

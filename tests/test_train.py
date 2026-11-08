@@ -1,10 +1,8 @@
 import pytest
 import torch
-from transformers import BertConfig, BertForSequenceClassification, BertTokenizerFast
 
 from src.training.train import make_loader, predict, score, train_step
 
-VOCAB = ["[PAD]", "[UNK]", "[CLS]", "[SEP]", "enak", "parah", "biasa", "banget"]
 ROWS = [
     ("enak banget", "positive"),
     ("parah banget", "negative"),
@@ -23,24 +21,8 @@ CONFIG = {
 
 
 @pytest.fixture
-def tokenizer(tmp_path):
-    vocab_file = tmp_path / "vocab.txt"
-    vocab_file.write_text("\n".join(VOCAB) + "\n")
-    return BertTokenizerFast(vocab_file=str(vocab_file))
-
-
-@pytest.fixture
-def model():
-    torch.manual_seed(0)
-    config = BertConfig(
-        vocab_size=len(VOCAB),
-        hidden_size=16,
-        num_hidden_layers=1,
-        num_attention_heads=2,
-        intermediate_size=32,
-        num_labels=3,
-    )
-    return BertForSequenceClassification(config)
+def model(make_model):
+    return make_model()
 
 
 def test_loader_pads_a_batch_to_its_longest_text(tokenizer):
