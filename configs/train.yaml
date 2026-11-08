@@ -18,6 +18,16 @@ epochs: 4
 max_grad_norm: 1.0
 seed: 42
 
+# LoRA (lora and lora_replay): small trainable matrices next to the attention weights.
+# r is their rank, and alpha / r scales their effect. The learning rate is larger than for
+# full fine-tuning because the update starts at zero. Fixed before any run.
+lora:
+  r: 8
+  alpha: 16
+  dropout: 0.1
+  target_modules: [query, value]
+  learning_rate: 2.0e-4
+
 # Share of each old period's train rows kept in the replay buffer (replay methods).
 replay_fraction: 0.05
 

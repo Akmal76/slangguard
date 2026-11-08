@@ -1,9 +1,9 @@
 """Fine-tune a sequence classifier for one baseline step. Runs on CPU and on CUDA."""
 
-import copy
 import random
 
 import torch
+from peft import LoraConfig, PeftModel, TaskType, get_peft_model
 from torch.utils.data import DataLoader
 from transformers import AutoModelForSequenceClassification, get_linear_schedule_with_warmup
 
@@ -27,6 +27,40 @@ def new_model(config: dict) -> torch.nn.Module:
     # model) ship a head with another size, which would otherwise raise an error.
     return AutoModelForSequenceClassification.from_pretrained(
         config["model_name"], num_labels=len(LABELS), ignore_mismatched_sizes=True
+    )
+
+
+def add_lora(model: torch.nn.Module, config: dict) -> PeftModel:
+    """Freeze the model and add small trainable LoRA matrices to the attention layers.
+
+    PEFT also keeps the classification head trainable for this task type.
+    """
+    settings = config["lora"]
+    lora_config = LoraConfig(
+        task_type=TaskType.SEQ_CLS,
+        r=settings["r"],
+        lora_alpha=settings["alpha"],
+        lora_dropout=settings["dropout"],
+        target_modules=settings["target_modules"],
+    )
+    return get_peft_model(model, lora_config)
+
+
+def new_lora_model(config: dict) -> PeftModel:
+    return add_lora(new_model(config), config)
+
+
+def trainable_params(model: torch.nn.Module) -> tuple[int, int]:
+    """Number of weights that training changes, and the number of all weights."""
+    params = list(model.parameters())
+    return sum(p.numel() for p in params if p.requires_grad), sum(p.numel() for p in params)
+
+
+def learning_rate(model: torch.nn.Module, config: dict) -> float:
+    # The LoRA update starts at zero and adds only a few weights, so it needs a much larger
+    # step than full fine-tuning.
+    return (
+        config["lora"]["learning_rate"] if isinstance(model, PeftModel) else config["learning_rate"]
     )
 
 
@@ -69,8 +103,9 @@ def train_step(model, tokenizer, train: list[Row], val: list[Row], config: dict,
     """
     model.to(device)
     loader = make_loader(train, tokenizer, config, shuffle=True)
+    trainable = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.AdamW(
-        model.parameters(), lr=config["learning_rate"], weight_decay=config["weight_decay"]
+        trainable, lr=learning_rate(model, config), weight_decay=config["weight_decay"]
     )
     total_steps = len(loader) * config["epochs"]
     scheduler = get_linear_schedule_with_warmup(
@@ -90,7 +125,7 @@ def train_step(model, tokenizer, train: list[Row], val: list[Row], config: dict,
                 loss = model(**encoded.to(device), labels=labels.to(device)).loss
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)  # clip real gradient sizes, not scaled ones
-            torch.nn.utils.clip_grad_norm_(model.parameters(), config["max_grad_norm"])
+            torch.nn.utils.clip_grad_norm_(trainable, config["max_grad_norm"])
             scaler.step(optimizer)
             scaler.update()
             scheduler.step()
@@ -98,7 +133,13 @@ def train_step(model, tokenizer, train: list[Row], val: list[Row], config: dict,
         val_f1 = score(model, val, tokenizer, config, device)
         if val_f1 > best_f1:
             best_f1 = val_f1
-            best_weights = copy.deepcopy(model.state_dict())
+            # Only the weights that training changes need to be kept.
+            best_weights = {
+                n: p.detach().clone() for n, p in model.named_parameters() if p.requires_grad
+            }
 
-    model.load_state_dict(best_weights)
+    with torch.no_grad():
+        for name, param in model.named_parameters():
+            if name in best_weights:
+                param.copy_(best_weights[name])
     return best_f1
