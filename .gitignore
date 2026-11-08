@@ -13,6 +13,9 @@ kaggle.json
 mlruns/
 mlartifacts/
 
+# Training outputs (weights, result files)
+outputs/
+
 # Jupyter
 .ipynb_checkpoints/
 

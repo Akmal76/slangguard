@@ -1,0 +1,25 @@
+# Settings for the baseline runs (naive fine-tune and full retrain).
+# The values are common BERT fine-tuning defaults, fixed before any result is seen and
+# shared by both baselines. They are not tuned on test sets.
+
+model_name: indobenchmark/indobert-base-p1
+periods_dir: data/periods
+periods: [p1, p2, p3, p4]
+output_dir: outputs
+
+# The longest text in any period is 108 tokens, so 128 cuts nothing.
+max_length: 128
+batch_size: 32
+learning_rate: 2.0e-5
+weight_decay: 0.01
+# Share of all training steps spent warming the learning rate up from 0.
+warmup_ratio: 0.1
+epochs: 4
+max_grad_norm: 1.0
+seed: 42
+
+# null uses every row. A number keeps only the first rows of each split (CPU smoke test).
+max_rows_per_split: null
+
+# The server comes from the MLFLOW_TRACKING_URI environment variable, not from this file.
+mlflow_experiment: slangguard-baselines
