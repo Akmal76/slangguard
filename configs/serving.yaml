@@ -1,0 +1,15 @@
+# Settings for the prediction API.
+
+# Models come from Hugging Face. The revisions are fixed commits, so the API always loads
+# the same files. To serve another model, change the adapter repo and revision.
+base_model: indobenchmark/indobert-base-p1
+base_revision: c2cd0b51ddce6580eb35263b39b0a1e5fb0a39e2
+adapter_repo: amc76/slangguard-indobert-lora-replay
+adapter_revision: 0394a41247d2bc37b51d11f1ad9b795b1bc5e509
+
+# The same limit as in training. Longer texts are cut.
+max_length: 128
+
+# Limits on one request, so a single call cannot use all the memory.
+max_texts: 32
+max_chars: 1000
