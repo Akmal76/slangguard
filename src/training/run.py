@@ -49,7 +49,7 @@ def run_method(config: dict, method: str, make_model, tokenizer, device) -> Matr
     set_seed(seed)
     model = make_model(config)  # methods without a fresh model keep this one for all steps
     matrix: Matrix = []
-    total_seconds = 0.0
+    step_seconds: list[float] = []
 
     with mlflow.start_run(run_name=name):
         trainable, total = trainable_params(model)
@@ -92,7 +92,7 @@ def run_method(config: dict, method: str, make_model, tokenizer, device) -> Matr
                 device,
             )
             seconds = time.perf_counter() - start
-            total_seconds += seconds
+            step_seconds.append(seconds)
 
             # Every test set is scored after every step, including periods not seen yet.
             row = [
@@ -108,7 +108,7 @@ def run_method(config: dict, method: str, make_model, tokenizer, device) -> Matr
         summary = {
             "avg_f1": avg_f1(matrix),
             "forgetting": forgetting(matrix),
-            "total_train_seconds": total_seconds,
+            "total_train_seconds": sum(step_seconds),
         }
         mlflow.log_metrics(summary)
         result = {
@@ -118,6 +118,7 @@ def run_method(config: dict, method: str, make_model, tokenizer, device) -> Matr
             "replay_fraction": params["replay_fraction"],
             "trainable_params": trainable,
             "matrix": matrix,
+            "step_seconds": step_seconds,
             **summary,
         }
         mlflow.log_dict(result, "result.json")

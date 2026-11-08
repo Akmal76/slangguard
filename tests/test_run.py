@@ -118,3 +118,5 @@ def test_run_method_writes_a_local_copy_of_the_result(config, tokenizer, make_fo
     assert result["run"] == "replay-r25-seed1"
     assert result["replay_fraction"] == 0.25
     assert len(result["matrix"]) == 3
+    assert len(result["step_seconds"]) == 3
+    assert result["total_train_seconds"] == pytest.approx(sum(result["step_seconds"]))
