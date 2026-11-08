@@ -1,7 +1,4 @@
-"""Clean raw SmSA and IDSA data into one labeled table per dataset.
-
-Output format: a TSV file with a header row and two columns, text and label.
-"""
+"""Clean raw SmSA and IDSA data into one labeled table per dataset."""
 
 import argparse
 from collections import defaultdict
@@ -9,10 +6,10 @@ from pathlib import Path
 
 import yaml
 
+from src.data.tsv import Row, write_tsv
+
 LABELS = ("negative", "neutral", "positive")
 IDSA_LABELS = {"-1": "negative", "0": "neutral", "1": "positive"}
-
-Row = tuple[str, str]
 
 
 def normalize_text(text: str) -> str:
@@ -56,12 +53,6 @@ def deduplicate(rows: list[Row]) -> list[Row]:
 
 def remove_texts(rows: list[Row], texts: set[str]) -> list[Row]:
     return [(text, label) for text, label in rows if text not in texts]
-
-
-def write_tsv(rows: list[Row], path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    lines = ["text\tlabel", *(f"{text}\t{label}" for text, label in rows)]
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def clean_all(config: dict) -> dict[str, int]:
