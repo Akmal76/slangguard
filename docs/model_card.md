@@ -48,8 +48,13 @@ def normalize(text):
 
 
 texts = ["makanannya enak banget, pelayanannya ramah", "parah sih, lama banget nunggunya"]
-batch = tokenizer([normalize(t) for t in texts], padding=True, truncation=True,
-                  max_length=128, return_tensors="pt")
+batch = tokenizer(
+    [normalize(t) for t in texts],
+    padding=True,
+    truncation=True,
+    max_length=128,
+    return_tensors="pt",
+)
 with torch.inference_mode():
     labels = model(**batch).logits.argmax(dim=-1).tolist()
 print([["negative", "neutral", "positive"][i] for i in labels])
