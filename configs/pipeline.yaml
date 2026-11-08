@@ -18,3 +18,8 @@ promotion:
   # ...and no older period may lose more than this much macro-F1 on its validation set.
   # Test sets are never used for this decision.
   max_old_drop: 0.02
+
+mlflow:
+  # The server comes from the MLFLOW_TRACKING_URI environment variable (see .env.example).
+  experiment: slangguard-pipeline
+  model_name: slangguard-sentiment
