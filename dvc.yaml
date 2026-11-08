@@ -1,0 +1,36 @@
+stages:
+  download:
+    cmd: python -m src.data.download
+    deps:
+      - src/data/download.py
+    params:
+      - configs/data.yaml:
+          - sources
+    outs:
+      - data/raw
+
+  clean:
+    cmd: python -m src.data.clean
+    deps:
+      - src/data/clean.py
+      - src/data/tsv.py
+      - data/raw/smsa
+      - data/raw/idsa
+    outs:
+      - data/interim
+
+  split:
+    cmd: python -m src.data.split
+    deps:
+      - src/data/split.py
+      - src/data/tsv.py
+      - data/interim
+      - data/raw/lexicon
+    params:
+      - configs/data.yaml:
+          - seed
+          - split_ratios
+          - slang_rate
+          - reversed_word_count
+    outs:
+      - data/periods

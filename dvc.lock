@@ -1,0 +1,96 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: python -m src.data.download
+    deps:
+    - path: src/data/download.py
+      hash: md5
+      md5: bdb0285a0913a619ebc037181ed32063
+      size: 1254
+    params:
+      configs/data.yaml:
+        sources:
+          smsa:
+            train.tsv: 
+              https://raw.githubusercontent.com/IndoNLP/indonlu/ce728f6926a36174b9923dfe49d6a6839b6e9bb7/dataset/smsa_doc-sentiment-prosa/train_preprocess.tsv
+            valid.tsv: 
+              https://raw.githubusercontent.com/IndoNLP/indonlu/ce728f6926a36174b9923dfe49d6a6839b6e9bb7/dataset/smsa_doc-sentiment-prosa/valid_preprocess.tsv
+            test.tsv: 
+              https://raw.githubusercontent.com/IndoNLP/indonlu/ce728f6926a36174b9923dfe49d6a6839b6e9bb7/dataset/smsa_doc-sentiment-prosa/test_preprocess.tsv
+          idsa:
+            tweets.tsv: 
+              https://raw.githubusercontent.com/ridife/dataset-idsa/ad6726eb22176338ff77819cb73d7088823e3183/Indonesian%20Sentiment%20Twitter%20Dataset%20Labeled.csv
+          lexicon:
+            colloquial_lexicon.csv: 
+              https://raw.githubusercontent.com/nasalsabila/kamus-alay/c710fa9f3f8d8727c24f3209f4f6a4b6ecaf6d8b/colloquial-indonesian-lexicon.csv
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: c2f8fee89d513d1f1d1b67f83053215b.dir
+      size: 6531628
+      nfiles: 5
+  clean:
+    cmd: python -m src.data.clean
+    deps:
+    - path: data/raw/idsa
+      hash: md5
+      md5: 896df91bc6020e5aa47cbf8a6678aeb3.dir
+      size: 928827
+      nfiles: 1
+    - path: data/raw/smsa
+      hash: md5
+      md5: f93df504cedcc99d34d793b7a8ffe1ee.dir
+      size: 2509641
+      nfiles: 3
+    - path: src/data/clean.py
+      hash: md5
+      md5: bf3cb752f0b5741943668a8889fefcd4
+      size: 2800
+    - path: src/data/tsv.py
+      hash: md5
+      md5: 62ce5f6a6e1791f17d038926f4e39118
+      size: 538
+    outs:
+    - path: data/interim
+      hash: md5
+      md5: dbfa3a083f407ea215b03a9c62c29795.dir
+      size: 3388125
+      nfiles: 2
+  split:
+    cmd: python -m src.data.split
+    deps:
+    - path: data/interim
+      hash: md5
+      md5: dbfa3a083f407ea215b03a9c62c29795.dir
+      size: 3388125
+      nfiles: 2
+    - path: data/raw/lexicon
+      hash: md5
+      md5: 267d0305cd6453eb344cfc54840a35a1.dir
+      size: 3093160
+      nfiles: 1
+    - path: src/data/split.py
+      hash: md5
+      md5: bcb54952f15362beb617c61152acc867
+      size: 4607
+    - path: src/data/tsv.py
+      hash: md5
+      md5: 62ce5f6a6e1791f17d038926f4e39118
+      size: 538
+    params:
+      configs/data.yaml:
+        reversed_word_count: 100
+        seed: 42
+        slang_rate:
+          p3: 0.3
+          p4: 0.7
+        split_ratios:
+          train: 0.7
+          val: 0.15
+          test: 0.15
+    outs:
+    - path: data/periods
+      hash: md5
+      md5: fce7cf18ab8d82d73972f493c1ba5586.dir
+      size: 3385775
+      nfiles: 12
