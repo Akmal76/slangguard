@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# The workflow only reads the repository.
+permissions:
+  contents: read
+
+# A new push cancels the older run for the same branch.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.9.26"
+          enable-cache: true
+      # --frozen installs exactly what uv.lock says, so CI uses the tested versions.
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      # The tests use tiny local models and temporary files: no downloads, no GPU, no data.
+      - run: uv run pytest
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t slangguard-api .
+      # The server runs as a user without root rights. This catches files it cannot read.
+      - run: docker run --rm --entrypoint python slangguard-api -c "import src.serving.app"
