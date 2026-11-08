@@ -18,6 +18,9 @@ epochs: 4
 max_grad_norm: 1.0
 seed: 42
 
+# Share of each old period's train rows kept in the replay buffer (replay methods).
+replay_fraction: 0.05
+
 # null uses every row. A number keeps a random sample of each split (CPU smoke test).
 max_rows_per_split: null
 

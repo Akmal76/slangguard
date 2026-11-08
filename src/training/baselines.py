@@ -17,7 +17,7 @@ import yaml
 from transformers import AutoTokenizer
 
 from src.evaluation.metrics import Matrix, avg_f1, forgetting
-from src.training.data import METHODS, period_test_rows, train_rows, val_rows
+from src.training.data import get_method, period_test_rows, train_rows, val_rows
 from src.training.train import new_model, pick_device, score, set_seed, train_step
 
 
@@ -51,7 +51,7 @@ def run_baseline(config: dict, method: str, make_model, tokenizer, device) -> Ma
         )
 
         for t, period in enumerate(periods):
-            if method == "full":
+            if get_method(method).fresh_model:
                 set_seed(seed)
                 model = make_model(config)  # a fresh model at every step
 
@@ -96,7 +96,8 @@ def run_baseline(config: dict, method: str, make_model, tokenizer, device) -> Ma
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--method", choices=METHODS, required=True)
+    # LoRA methods are added to this runner in a later step.
+    parser.add_argument("--method", choices=["naive", "full", "replay"], required=True)
     parser.add_argument("--config", type=Path, default=Path("configs/train.yaml"))
     parser.add_argument("--seed", type=int, help="overrides the seed in the config")
     args = parser.parse_args()

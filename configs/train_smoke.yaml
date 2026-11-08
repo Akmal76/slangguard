@@ -15,6 +15,9 @@ epochs: 1
 max_grad_norm: 1.0
 seed: 42
 
+# Share of each old period's train rows kept in the replay buffer (replay methods).
+replay_fraction: 0.05
+
 max_rows_per_split: 50
 
 mlflow_experiment: slangguard-smoke
