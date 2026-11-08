@@ -16,6 +16,9 @@ stages:
       - src/data/tsv.py
       - data/raw/smsa
       - data/raw/idsa
+    params:
+      - configs/data.yaml:
+          - malay_markers
     outs:
       - data/interim
 

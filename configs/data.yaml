@@ -18,6 +18,10 @@ slang_rate:
 # like real "bahasa walikan" slang (yuk -> kuy).
 reversed_word_count: 100
 
+# IDSA tweets with one of these words are dropped as Malay. "macam" is left out on
+# purpose: it is also Indonesian (254 SmSA texts use it).
+malay_markers: [nak, sikit, awak, korang, cuba, faham, tengok, kat]
+
 # URLs point to fixed commits, so the raw data never changes under us.
 sources:
   smsa:

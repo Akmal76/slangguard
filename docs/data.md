@@ -60,3 +60,28 @@ separately.
   a formal word is replaced with one of its slang forms.
 - Each period gets its own train, validation, and test split with a fixed seed.
 - P3 and P4 are simulated. The README must say so.
+
+## 5. Cleaning rules
+
+Applied in `src/data/clean.py`, before the period split. Found in
+`notebooks/01_data_analysis.ipynb`.
+
+| Rule | Why | Effect |
+| --- | --- | --- |
+| Lowercase, collapse spaces | One text format | n/a |
+| Strip punctuation: apostrophes are joined, other marks become spaces | SmSA has punctuation and IDSA has none, so a model could tell P1 from later periods by punctuation alone | `teman-teman` becomes `teman teman`; `__laugh__` is kept |
+| Remove the standalone token `amp` | Leftover of `&amp;`, not a word | 148 texts changed in the first count |
+| Drop IDSA tweets with a Malay marker word | The project is about Indonesian | 973 tweets before deduplication |
+| Drop empty texts and texts with conflicting labels | Unusable or contradictory | See `deduplicate` |
+
+Known limits:
+
+- **Malay filter is a word list, not language detection.** Markers are in
+  `configs/data.yaml` (`malay_markers`). `macam` is not a marker because 254 SmSA texts
+  use it as Indonesian. About 1% of P2 (31 tweets) still has `macam`, so some Malay
+  may remain, and a few Indonesian tweets that use a marker word are lost.
+- **Dropped Malay tweets were not skewed.** The IDSA label mix hardly moved
+  (negative 26.2% before, 25.6% after).
+- **Punctuation can carry sentiment** ("!" and "?" in P1). Removing it costs a little
+  signal, but it is the same cost in every period.
+- **Hyphens are split**, so reduplication (`benar-benar`) becomes two words.

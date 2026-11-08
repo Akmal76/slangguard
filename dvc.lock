@@ -44,25 +44,36 @@ stages:
       nfiles: 3
     - path: src/data/clean.py
       hash: md5
-      md5: bf3cb752f0b5741943668a8889fefcd4
-      size: 2800
+      md5: 60edddf2ae3e432f4af5d5e877e134dc
+      size: 3669
     - path: src/data/tsv.py
       hash: md5
       md5: 62ce5f6a6e1791f17d038926f4e39118
       size: 538
+    params:
+      configs/data.yaml:
+        malay_markers:
+        - nak
+        - sikit
+        - awak
+        - korang
+        - cuba
+        - faham
+        - tengok
+        - kat
     outs:
     - path: data/interim
       hash: md5
-      md5: dbfa3a083f407ea215b03a9c62c29795.dir
-      size: 3388125
+      md5: b2adf3a8a12f7710929c2125fa46cd63.dir
+      size: 3203414
       nfiles: 2
   split:
     cmd: python -m src.data.split
     deps:
     - path: data/interim
       hash: md5
-      md5: dbfa3a083f407ea215b03a9c62c29795.dir
-      size: 3388125
+      md5: b2adf3a8a12f7710929c2125fa46cd63.dir
+      size: 3203414
       nfiles: 2
     - path: data/raw/lexicon
       hash: md5
@@ -91,6 +102,6 @@ stages:
     outs:
     - path: data/periods
       hash: md5
-      md5: fce7cf18ab8d82d73972f493c1ba5586.dir
-      size: 3385775
+      md5: 71159218210e213351616e2d07a91f2e.dir
+      size: 3201613
       nfiles: 12

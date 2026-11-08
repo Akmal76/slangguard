@@ -1,6 +1,7 @@
 """Clean raw SmSA and IDSA data into one labeled table per dataset."""
 
 import argparse
+import re
 from collections import defaultdict
 from pathlib import Path
 
@@ -12,9 +13,26 @@ LABELS = ("negative", "neutral", "positive")
 IDSA_LABELS = {"-1": "negative", "0": "neutral", "1": "positive"}
 
 
+PUNCTUATION = re.compile(r"[^\w\s]")  # \w keeps letters, digits and "_" (SmSA's __laugh__)
+AMP = re.compile(r"\bamp\b")  # leftover of the HTML entity &amp;
+
+
+def strip_punctuation(text: str) -> str:
+    # SmSA has punctuation and IDSA has none. Without this a model could tell P1 from
+    # later periods by punctuation alone. Apostrophes are joined ("don't" -> "dont") and
+    # other marks become spaces ("teman-teman" -> "teman teman").
+    return PUNCTUATION.sub(" ", text.replace("'", ""))
+
+
 def normalize_text(text: str) -> str:
     # Repeated letters ("bangettt") are kept on purpose: they are part of the slang signal.
-    return " ".join(text.lower().split())
+    text = AMP.sub(" ", strip_punctuation(text.lower()))
+    return " ".join(text.split())
+
+
+def drop_malay(rows: list[Row], markers: set[str]) -> list[Row]:
+    """Drop rows that contain a Malay marker word. This is a word list, not language detection."""
+    return [(text, label) for text, label in rows if markers.isdisjoint(text.split())]
 
 
 def read_smsa(raw_dir: Path) -> list[Row]:
@@ -60,7 +78,8 @@ def clean_all(config: dict) -> dict[str, int]:
     interim_dir = Path(config["interim_dir"])
 
     smsa = deduplicate([(normalize_text(t), label) for t, label in read_smsa(raw_dir)])
-    idsa = deduplicate([(normalize_text(t), label) for t, label in read_idsa(raw_dir)])
+    idsa = [(normalize_text(t), label) for t, label in read_idsa(raw_dir)]
+    idsa = deduplicate(drop_malay(idsa, set(config["malay_markers"])))
     # P1 comes from SmSA and later periods from IDSA, so they must not share any text.
     idsa = remove_texts(idsa, {text for text, _ in smsa})
 
