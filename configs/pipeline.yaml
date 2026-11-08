@@ -10,3 +10,11 @@ drift:
   # The check compares at most this many texts per side, to stay fast.
   max_rows: 1500
   seed: 42
+
+promotion:
+  # A candidate must score higher than the champion on the validation set of the new period
+  # by more than this much...
+  min_new_gain: 0.0
+  # ...and no older period may lose more than this much macro-F1 on its validation set.
+  # Test sets are never used for this decision.
+  max_old_drop: 0.02
