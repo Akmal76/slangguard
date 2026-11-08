@@ -64,7 +64,8 @@ Every tool is free. The only real limits are the weekly Kaggle GPU quota and lap
 | --- | --- | --- |
 | Code and data versioning | Git, GitHub, DVC | Laptop + GitHub |
 | Training | PyTorch, Hugging Face Transformers, PEFT (LoRA) | Kaggle Notebooks (GPU) |
-| Experiment tracking and model registry | MLflow | Laptop (Docker) |
+| Experiment tracking | MLflow, hosted on DagsHub (free), written to directly from Kaggle | DagsHub |
+| Model registry | MLflow | Laptop (Docker), from milestone 3 |
 | Drift detection | Evidently AI | Laptop |
 | Pipeline orchestration | Prefect | Laptop |
 | Prediction API | FastAPI, Uvicorn, ONNX Runtime (optional) | Laptop (Docker) |
@@ -183,7 +184,7 @@ These are first estimates, not results. They will be revised after the baselines
 | Risk | Impact | Mitigation |
 | --- | --- | --- |
 | Kaggle GPU quota runs out | Training is delayed | Smaller model, fewer epochs, checkpoint every epoch |
-| Kaggle session disconnects | Training results are lost | Save checkpoints and MLflow logs to downloadable files or Hugging Face Hub |
+| Kaggle session disconnects | Training results are lost | Metrics go to MLflow on DagsHub as they are produced, and each run also writes a local `outputs/*.json` copy |
 | Laptop RAM is not enough | Docker is slow or crashes | Start only the services in use, limit memory per container |
 | Drift between periods is too small | Forgetting does not show | Make P4 more different with the slang dictionary |
 | Labels differ across datasets | Unfair evaluation | One shared 3-class scheme, manual check of random samples |
