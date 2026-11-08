@@ -9,9 +9,6 @@ __pycache__/
 .env
 kaggle.json
 
-# Data (tracked by DVC)
-/data/
-
 # MLflow
 mlruns/
 mlartifacts/
