@@ -7,6 +7,7 @@ documentation is at /docs.
 """
 
 import os
+from collections.abc import Mapping
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -73,6 +74,19 @@ def create_app(config: dict, model: SentimentModel | None = None) -> FastAPI:
     return app
 
 
+# Environment variables that replace the model in configs/serving.yaml. The pipeline sets them
+# (through champion.env) when it promotes a new model.
+ENV_OVERRIDES = {"ADAPTER_REPO": "adapter_repo", "ADAPTER_REVISION": "adapter_revision"}
+
+
+def load_serving_config(path: Path, env: Mapping[str, str]) -> dict:
+    config = yaml.safe_load(path.read_text())
+    for name, key in ENV_OVERRIDES.items():
+        if env.get(name):  # an empty value counts as not set
+            config[key] = env[name]
+    return config
+
+
 def create_default_app() -> FastAPI:
     path = Path(os.environ.get("SERVING_CONFIG", "configs/serving.yaml"))
-    return create_app(yaml.safe_load(path.read_text()))
+    return create_app(load_serving_config(path, os.environ))

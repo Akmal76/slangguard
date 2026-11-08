@@ -3,6 +3,10 @@ services:
     build: .
     ports:
       - "8000:8000"
+    # Written by the pipeline when it promotes a new model. It may not exist yet.
+    env_file:
+      - path: champion.env
+        required: false
     volumes:
       # The model is downloaded once and kept here, so a restart starts fast.
       - hf-cache:/home/app/.cache/huggingface
