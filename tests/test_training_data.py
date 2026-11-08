@@ -14,7 +14,12 @@ def config(tmp_path):
                 f"{period} {split} b\tnegative",
             ]
             (tmp_path / period / f"{split}.tsv").write_text("\n".join(lines) + "\n")
-    return {"periods_dir": str(tmp_path), "periods": ["p1", "p2", "p3"], "max_rows_per_split": None}
+    return {
+        "periods_dir": str(tmp_path),
+        "periods": ["p1", "p2", "p3"],
+        "max_rows_per_split": None,
+        "seed": 42,
+    }
 
 
 def test_naive_trains_only_on_the_current_period(config):
@@ -47,10 +52,15 @@ def test_test_rows_come_from_the_test_split_of_one_period(config):
     assert [text for text, _ in period_test_rows(config, "p3")] == ["p3 test a", "p3 test b"]
 
 
-def test_max_rows_per_split_keeps_the_first_rows(config):
+def test_max_rows_per_split_takes_a_repeatable_sample_from_each_split(config):
     config["max_rows_per_split"] = 1
 
-    assert train_rows(config, "full", 1) == [("p1 train a", "positive"), ("p2 train a", "positive")]
+    rows = train_rows(config, "full", 1)
+
+    assert len(rows) == 2
+    assert rows[0][0].startswith("p1 train")
+    assert rows[1][0].startswith("p2 train")
+    assert rows == train_rows(config, "full", 1)
 
 
 def test_unknown_method_is_rejected(config):

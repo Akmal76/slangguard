@@ -7,6 +7,7 @@ only in what they train on at that step:
 - full: periods 0..t together, with a fresh model.
 """
 
+import random
 from pathlib import Path
 
 from src.data.clean import LABELS
@@ -19,7 +20,10 @@ LABEL_TO_ID = {label: i for i, label in enumerate(LABELS)}
 def load_split(config: dict, period: str, split: str) -> list[Row]:
     rows = read_tsv(Path(config["periods_dir"]) / period / f"{split}.tsv")
     limit = config["max_rows_per_split"]
-    return rows if limit is None else rows[:limit]
+    if limit is None or limit >= len(rows):
+        return rows
+    # The split files are sorted by label, so the first rows would be one class only.
+    return random.Random(config["seed"]).sample(rows, limit)
 
 
 def _periods_seen(config: dict, method: str, t: int) -> list[str]:

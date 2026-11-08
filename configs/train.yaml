@@ -18,7 +18,7 @@ epochs: 4
 max_grad_norm: 1.0
 seed: 42
 
-# null uses every row. A number keeps only the first rows of each split (CPU smoke test).
+# null uses every row. A number keeps a random sample of each split (CPU smoke test).
 max_rows_per_split: null
 
 # The server comes from the MLFLOW_TRACKING_URI environment variable, not from this file.
