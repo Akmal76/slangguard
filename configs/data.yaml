@@ -1,5 +1,22 @@
 raw_dir: data/raw
 interim_dir: data/interim
+periods_dir: data/periods
+lexicon_path: data/raw/lexicon/colloquial_lexicon.csv
+
+seed: 42
+split_ratios:
+  train: 0.70
+  val: 0.15
+  test: 0.15
+
+# Chance that a word with a known slang form is replaced by one of them.
+slang_rate:
+  p3: 0.3
+  p4: 0.7
+
+# P4 only: the most frequent words (3+ letters) that are always written in reverse,
+# like real "bahasa walikan" slang (yuk -> kuy).
+reversed_word_count: 100
 
 # URLs point to fixed commits, so the raw data never changes under us.
 sources:
