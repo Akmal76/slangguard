@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      # The model is downloaded once and kept here, so a restart starts fast.
+      - hf-cache:/home/app/.cache/huggingface
+    # Keeps the laptop usable if something goes wrong.
+    mem_limit: 2g
+
+volumes:
+  hf-cache:

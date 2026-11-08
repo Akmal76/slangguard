@@ -1,0 +1,20 @@
+# Keep the build context small. The image only needs pyproject.toml, uv.lock, src/ and
+# configs/serving.yaml (see the Dockerfile).
+.git
+.github
+.venv
+.dvc
+.pytest_cache
+.ruff_cache
+__pycache__
+data
+outputs
+results
+notebooks
+docs
+tests
+mlflow.db
+mlruns
+mlartifacts
+.env
+*.ipynb
