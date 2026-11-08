@@ -83,3 +83,5 @@ combination. Report it next to the three targets.
 Chosen before any result was known: LoRA + replay with a 5% buffer, seed 42. Its AvgF1 is 0.731
 (the three seeds gave 0.731, 0.725 and 0.719), so it is slightly above the mean of its method.
 The adapter file is about 1.2 MB and holds only the LoRA matrices and the classification head.
+It is published at [amc76/slangguard-indobert-lora-replay](https://huggingface.co/amc76/slangguard-indobert-lora-replay)
+under CC BY-SA 4.0, with the model card in [model_card.md](model_card.md).
