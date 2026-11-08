@@ -34,7 +34,7 @@ The system has two parts: an automated pipeline that updates the model, and a se
 part that answers prediction requests.
 
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph Pipeline["Automated pipeline (Prefect)"]
         A[New data period] --> B{Drift check<br/>Evidently}
         B -- no drift --> Z[Stop]
