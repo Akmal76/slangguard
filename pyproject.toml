@@ -5,7 +5,9 @@ description = "Continual-learning MLOps system for Indonesian sentiment analysis
 readme = "README.md"
 # Pinned to the Python minor version that Kaggle Notebooks run, where training happens.
 requires-python = ">=3.13,<3.14"
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0.3",
+]
 
 [dependency-groups]
 dev = [
