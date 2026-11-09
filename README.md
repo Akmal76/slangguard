@@ -49,6 +49,13 @@ version. Stop with `docker compose down`. Without Docker:
 
 One sentence takes about 60 ms in Docker on a laptop CPU, and the container uses about 1 GB.
 
+## Retraining pipeline
+
+New text is checked for drift with Evidently. If the language changed, a Prefect flow trains a copy
+of the current model on a Kaggle GPU, compares it with the current one on validation sets, and
+switches the API only if it passes. How it works, how it was calibrated, and what has been run
+for real: [docs/pipeline.md](docs/pipeline.md).
+
 ## Develop
 
 ```bash

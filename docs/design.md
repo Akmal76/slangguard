@@ -65,7 +65,7 @@ Every tool is free. The only real limits are the weekly Kaggle GPU quota and lap
 | Code and data versioning | Git, GitHub, DVC | Laptop + GitHub |
 | Training | PyTorch, Hugging Face Transformers, PEFT (LoRA) | Kaggle Notebooks (GPU) |
 | Experiment tracking | MLflow, hosted on DagsHub (free), written to directly from Kaggle | DagsHub |
-| Model registry | MLflow | Laptop (Docker), from milestone 3 |
+| Model registry | MLflow, hosted on DagsHub (alias `champion`) | DagsHub |
 | Drift detection | Evidently AI | Laptop |
 | Pipeline orchestration | Prefect | Laptop |
 | Prediction API | FastAPI, Uvicorn (ONNX Runtime was not needed) | Laptop (Docker) |
