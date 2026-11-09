@@ -7,8 +7,11 @@ with LoRA + replay, so it learns new slang without forgetting old data.
 ## Status
 
 Done: data pipeline (DVC), baselines, the LoRA + replay method, a prediction API with Docker and
-CI, and the retraining pipeline (drift check, Kaggle GPU, promotion rule, registry, API switch),
-which has run end to end on real services. Next: monitoring and a demo.
+CI, the retraining pipeline (drift check, Kaggle GPU, promotion rule, registry, API switch) run end to
+end on real services, monitoring with Prometheus and Grafana, and a public demo.
+
+**Try it:** <https://huggingface.co/spaces/amc76/slangguard-demo>. The model runs in your browser, so
+nothing you type is sent anywhere.
 See [docs/design.md](docs/design.md) for the full design and roadmap.
 
 ## Tech stack
@@ -33,9 +36,13 @@ See [docs/design.md](docs/design.md) for the full design and roadmap.
 
 ![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white) ![pytest](https://img.shields.io/badge/pytest-%23ffffff.svg?style=for-the-badge&logo=pytest&logoColor=2f9fe3) ![Ruff](https://img.shields.io/badge/ruff-%23D7FF64.svg?style=for-the-badge&logo=ruff&logoColor=black) ![uv](https://img.shields.io/badge/uv-%23DE5FE9.svg?style=for-the-badge&logo=uv&logoColor=white) ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
-**Planned (monitoring and demo)**
+**Monitoring**
 
-![Prometheus](https://img.shields.io/badge/Prometheus-%23E6522C.svg?style=for-the-badge&logo=Prometheus&logoColor=white) ![Grafana](https://img.shields.io/badge/grafana-%23F46800.svg?style=for-the-badge&logo=grafana&logoColor=white) ![Gradio](https://img.shields.io/badge/gradio-%23F97316.svg?style=for-the-badge&logo=gradio&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-%23E6522C.svg?style=for-the-badge&logo=Prometheus&logoColor=white) ![Grafana](https://img.shields.io/badge/grafana-%23F46800.svg?style=for-the-badge&logo=grafana&logoColor=white)
+
+**Demo**
+
+![ONNX](https://img.shields.io/badge/ONNX-%23005CED.svg?style=for-the-badge&logo=onnx&logoColor=white) ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E) ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white) ![Gradio](https://img.shields.io/badge/gradio-%23F97316.svg?style=for-the-badge&logo=gradio&logoColor=white)
 
 Badges are made with [shields.io](https://shields.io) in the style of
 [ileriayo/markdown-badges](https://github.com/ileriayo/markdown-badges).
@@ -78,6 +85,26 @@ version. Stop with `docker compose down`. Without Docker:
 `uv run uvicorn src.serving.app:create_default_app --factory`.
 
 One sentence takes about 60 ms in Docker on a laptop CPU, and the container uses about 1 GB.
+
+## Monitoring
+
+The API reports request counts, latency, the mix of predicted labels and word pieces per word (a
+live sign that slang is arriving). It is optional and does not start with the API:
+
+```bash
+docker compose --profile monitoring up    # Grafana at http://localhost:3000, Prometheus at :9090
+```
+
+![The Grafana dashboard after traffic from P1 to P4](docs/images/dashboard.jpg)
+
+Details, the metrics and what was measured: [docs/monitoring.md](docs/monitoring.md).
+
+## The demo
+
+The page at <https://huggingface.co/spaces/amc76/slangguard-demo> loads an 8-bit version of the model
+into your browser (about 125 MB on the first visit). It is a static page because Gradio Spaces now
+need a paid plan. How it was built and checked against the Python model: [docs/demo.md](docs/demo.md).
+To try the model with Gradio on your own computer: `PYTHONPATH=. uv run python demo/app.py`.
 
 ## Retraining pipeline
 

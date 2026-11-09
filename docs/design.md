@@ -50,7 +50,7 @@ flowchart TD
         G --> H[Prometheus]
         H --> I[Grafana dashboard]
         F --> J[Hugging Face Hub]
-        J --> K[Gradio demo<br/>Hugging Face Spaces]
+        J --> K[Static demo page<br/>model runs in the browser]
     end
 ```
 
@@ -71,7 +71,7 @@ Every tool is free. The only real limits are the weekly Kaggle GPU quota and lap
 | Prediction API | FastAPI, Uvicorn (ONNX Runtime was not needed) | Laptop (Docker) |
 | Monitoring | Prometheus, Grafana | Laptop (Docker Compose) |
 | Testing and CI | pytest, Ruff, GitHub Actions | GitHub |
-| Demo | Gradio on Hugging Face Spaces | Free cloud |
+| Demo | A static page on a Hugging Face Space, with the model in the browser (ONNX Runtime Web). Gradio Spaces need a paid plan, so Gradio is only used to try the model locally | Free cloud |
 | Model storage | Hugging Face Hub | Free cloud |
 
 Training runs on Kaggle, not on the laptop. The laptop only runs the services that are
@@ -193,7 +193,7 @@ The latency target is met with a wide margin, so ONNX Runtime was not needed. Th
 | 3. LoRA + replay | Buffer size experiments, comparison table and chart | Results for all 3 methods, best model on Hugging Face Hub |
 | 4. API and CI | FastAPI service in Docker, tests and GitHub Actions | `docker compose up` starts the API, and CI passes on every push |
 | 5. Drift and pipeline | Evidently report, Prefect flow, promotion rule | Adding P4 data triggers the whole flow up to the API serving the new model |
-| 6. Monitoring and demo | Prometheus metrics, Grafana dashboard, Gradio demo, docs | Anyone can try the demo and run the project from the README |
+| 6. Monitoring and demo | Prometheus metrics, Grafana dashboard, a public demo that runs in the browser, docs | Anyone can try the demo and run the project from the README. Done: [monitoring.md](monitoring.md), [demo.md](demo.md) |
 
 ## 10. Risks
 
@@ -204,4 +204,5 @@ The latency target is met with a wide margin, so ONNX Runtime was not needed. Th
 | Laptop RAM is not enough | Docker is slow or crashes | Start only the services in use, limit memory per container |
 | Drift between periods is too small | Forgetting does not show | Make P4 more different with the slang dictionary |
 | Labels differ across datasets | Unfair evaluation | One shared 3-class scheme, manual check of random samples |
+| A free hosting plan changes | The demo cannot be hosted (Gradio Spaces became paid) | Host a static page and run the model in the visitor's browser. Costs nothing and has no server |
 | Dataset license is unclear | Data cannot be shared | Check licenses first, never re-upload raw data that is not allowed |
