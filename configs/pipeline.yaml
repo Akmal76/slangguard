@@ -32,6 +32,8 @@ kaggle:
   code_repo: https://github.com/Akmal76/slangguard.git
   # The same image as the Week 3 runs, where the torchao fix was checked.
   docker_image: gcr.io/kaggle-images/python@sha256:0717e81990be591f8c5f98f033d29ab23e9ffde057e5b3a6bd4371f93969e962
+  # Asked for on every push. The enable_gpu setting in the metadata alone gave a job with no GPU.
+  accelerator: NvidiaTeslaT4
   poll_seconds: 30
   # A job that runs longer than this is treated as failed, so the GPU is not left running.
   timeout_minutes: 45

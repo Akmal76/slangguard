@@ -10,6 +10,7 @@ CFG = {
     "dataset": "periods-data",
     "kernel": "update-job",
     "docker_image": "image@sha256:abc",
+    "accelerator": "NvidiaTeslaT4",
     "poll_seconds": 0,
     "timeout_minutes": 10,
 }
@@ -119,7 +120,9 @@ def test_push_kernel_writes_the_script_and_pushes_it(monkeypatch, tmp_path):
 
     kaggle_job.push_kernel(CFG, SPEC, tmp_path / "kernel")
 
-    assert fake.calls == [("kernels", "push", "-p", str(tmp_path / "kernel"))]
+    assert fake.calls == [
+        ("kernels", "push", "-p", str(tmp_path / "kernel"), "--accelerator", "NvidiaTeslaT4")
+    ]
     assert "abc1234" in (tmp_path / "kernel" / "script.py").read_text()
     assert (tmp_path / "kernel" / "kernel-metadata.json").exists()
 

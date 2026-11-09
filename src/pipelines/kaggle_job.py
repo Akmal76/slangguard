@@ -74,7 +74,7 @@ def kernel_metadata(cfg: dict) -> dict:
         "competition_sources": [],
         "model_sources": [],
         "docker_image": cfg["docker_image"],
-        "machine_shape": "NvidiaTeslaT4",
+        "machine_shape": cfg["accelerator"],
     }
 
 
@@ -83,7 +83,8 @@ def push_kernel(cfg: dict, spec: dict, folder: Path) -> None:
     folder.mkdir(parents=True, exist_ok=True)
     (folder / "script.py").write_text(render_script(spec))
     (folder / "kernel-metadata.json").write_text(json.dumps(kernel_metadata(cfg), indent=2))
-    kaggle("kernels", "push", "-p", str(folder))
+    # --accelerator is what makes Kaggle attach the GPU. The metadata alone is not enough.
+    kaggle("kernels", "push", "-p", str(folder), "--accelerator", cfg["accelerator"])
 
 
 def wait_for_kernel(cfg: dict) -> None:
