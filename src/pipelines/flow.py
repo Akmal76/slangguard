@@ -17,14 +17,18 @@ from pathlib import Path
 
 import mlflow
 import yaml
+from huggingface_hub import HfApi
 from prefect import flow, get_run_logger, task
 
 from src.drift.detect import check_drift, sample_texts, save_report
 from src.pipelines import registry
+from src.pipelines.browser_model import export_champion
 from src.pipelines.deploy import deploy
 from src.pipelines.kaggle_job import run_job
 from src.pipelines.promote import Decision, decide
 from src.pipelines.publish import upload_adapter
+from src.pipelines.space import update_model
+from src.serving.config import load_serving_config
 from src.training.data import load_split
 
 
@@ -112,8 +116,19 @@ def deploy_task(repo: str, revision: str) -> None:
     deploy(repo, revision)
 
 
+@task
+def space_task(pipeline_cfg: dict, repo: str, revision: str) -> None:
+    """Export the champion for the browser and put it on the demo page."""
+    config = load_serving_config(
+        Path("configs/serving.yaml"), {"ADAPTER_REPO": repo, "ADAPTER_REVISION": revision}
+    )
+    with tempfile.TemporaryDirectory() as temp:
+        export_champion(config, Path(temp))
+        update_model(HfApi(), pipeline_cfg["space"]["repo"], Path(temp), revision)
+
+
 def publish_champion(pipeline_cfg: dict, metrics: dict, adapter_dir: Path, run_id: str) -> dict:
-    """Make a candidate the champion: store it, register it, move the alias, restart the API."""
+    """Make a candidate the champion: store it, register it, move the alias, switch API and demo."""
     hub = pipeline_cfg["huggingface"]["repo"]
     model_name = pipeline_cfg["mlflow"]["model_name"]
     revision = upload_task(str(adapter_dir), hub, f"champion after {metrics['period']}")
@@ -122,10 +137,11 @@ def publish_champion(pipeline_cfg: dict, metrics: dict, adapter_dir: Path, run_i
     registry.set_champion(model_name, version)
     try:
         deploy_task(hub, revision)
+        space_task(pipeline_cfg, hub, revision)
     except Exception as error:
         raise RuntimeError(
-            f"Version {version} is the champion in the registry, but the API was not switched "
-            f"({error}). Fix the cause and run the flow with --deploy-only."
+            f"Version {version} is the champion in the registry, but the API or the demo was not "
+            f"switched ({error}). Fix the cause and run the flow with --deploy-only."
         ) from error
     return {"version": version, "revision": revision}
 
@@ -196,13 +212,15 @@ def bootstrap_flow(last_period: str = "p3", workdir: str | None = None) -> dict:
 
 @flow(name="deploy-champion")
 def deploy_champion_flow() -> dict:
-    """Switch the API to the champion in the registry, for example after a failed switch."""
+    """Switch the API and the demo to the champion in the registry, for example after a failure."""
     ensure_tracking()
     _, pipeline_cfg = load_configs()
     champion = registry.get_champion(pipeline_cfg["mlflow"]["model_name"])
     if champion is None:
         raise RuntimeError("There is no champion to deploy.")
-    deploy_task(champion["tags"]["hf_repo"], champion["tags"]["hf_revision"])
+    repo, revision = champion["tags"]["hf_repo"], champion["tags"]["hf_revision"]
+    deploy_task(repo, revision)
+    space_task(pipeline_cfg, repo, revision)
     return {"status": "deployed", "version": champion["version"]}
 
 

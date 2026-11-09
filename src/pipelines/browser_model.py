@@ -10,7 +10,6 @@ static web page can load it without a server.
 import argparse
 import json
 import os
-import shutil
 import tempfile
 from pathlib import Path
 
@@ -80,23 +79,27 @@ def predict_onnx(path: Path, tokenizer, texts: list[str]) -> np.ndarray:
     return exp / exp.sum(axis=1, keepdims=True)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--config", type=Path, default=Path("configs/serving.yaml"))
-    args = parser.parse_args()
-
-    config = load_serving_config(args.config, os.environ)
+def export_champion(config: dict, out_dir: Path) -> dict[str, float]:
+    """Load the model named in a serving config, merge it and write the browser folder."""
     sentiment = SentimentModel.load(config)
     info = {
         key: config[key]
         for key in ("base_model", "base_revision", "adapter_repo", "adapter_revision")
     }
     info["weights"] = "int8"
-    sizes = write_browser_model(sentiment.model, sentiment.tokenizer, args.out, info)
+    return write_browser_model(sentiment.model, sentiment.tokenizer, out_dir, info)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--config", type=Path, default=Path("configs/serving.yaml"))
+    args = parser.parse_args()
+
+    # ADAPTER_REPO and ADAPTER_REVISION in the environment choose the model, like for the API.
+    sizes = export_champion(load_serving_config(args.config, os.environ), args.out)
     print(f"written to {args.out}: {sizes['full_mb']:.0f} MB as float,", end=" ")
     print(f"{sizes['int8_mb']:.0f} MB as int8")
-    shutil.rmtree(args.out / "__pycache__", ignore_errors=True)
 
 
 if __name__ == "__main__":
