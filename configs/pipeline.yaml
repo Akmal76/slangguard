@@ -30,8 +30,9 @@ kaggle:
   dataset: slangguard-periods
   kernel: slangguard-update
   code_repo: https://github.com/Akmal76/slangguard.git
-  # The same image as the Week 3 runs, where the torchao fix was checked.
-  docker_image: gcr.io/kaggle-images/python@sha256:0717e81990be591f8c5f98f033d29ab23e9ffde057e5b3a6bd4371f93969e962
+  # The GPU image (note kaggle-gpu-images). Its digest was read from a job that got 2 Tesla T4 GPUs,
+  # with torch 2.11.0 and CUDA 13.0. An image from kaggle-images has no GPU, even when one is requested.
+  docker_image: gcr.io/kaggle-gpu-images/python@sha256:de153e6d303881930c51286216393d56f56b26458d0661350305a1e8144eea01
   # Asked for on every push. The enable_gpu setting in the metadata alone gave a job with no GPU.
   accelerator: NvidiaTeslaT4
   poll_seconds: 30
