@@ -20,7 +20,12 @@ train = [
 ]
 serve = [
     "fastapi>=0.115.0",
+    "prometheus-client>=0.26.0",
     "uvicorn>=0.54.0",
+]
+# The public demo on Hugging Face Spaces. Used locally and in tests, not in the Docker image.
+demo = [
+    "gradio>=6.31.0",
 ]
 # The retraining pipeline: drift check, orchestration, and the Kaggle CLI. Not in the Docker image.
 pipeline = [
@@ -42,7 +47,7 @@ dev = [
 ]
 
 [tool.uv]
-default-groups = ["dev", "train", "serve", "pipeline"]
+default-groups = ["dev", "train", "serve", "pipeline", "demo"]
 
 # On Linux (Docker and CI) torch comes from the CPU-only index. The default build pulls
 # several GB of CUDA libraries that those machines never use. macOS is not affected.
