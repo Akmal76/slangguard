@@ -132,3 +132,50 @@ def test_evaluate_returns_one_score_per_period(config, make_model, tokenizer):
     scores = evaluate(add_lora(make_model(), config), config, tokenizer, torch.device("cpu"))
 
     assert all(0 <= f1 <= 1 for key in ("val", "test") for f1 in scores[key])
+
+
+def accelerator():
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    return None
+
+
+@pytest.mark.skipif(accelerator() is None, reason="needs a GPU (MPS or CUDA)")
+def test_update_with_a_champion_works_on_an_accelerator(
+    config, make_model, tokenizer, champion_dir
+):
+    # On a CPU-only machine every tensor is on the same device, so a model that was not moved
+    # to the GPU goes unnoticed. This was a real failure on Kaggle.
+    device = accelerator()
+
+    model, metrics = update(config, 1, lambda c: make_model(), tokenizer, device, champion_dir)
+
+    assert next(model.parameters()).device.type == device.type
+    assert len(metrics["champion"]["val"]) == 3
+
+
+def test_the_loaded_champion_is_moved_to_the_device_before_it_is_scored(
+    config, make_model, tokenizer, champion_dir, monkeypatch
+):
+    # The same check for machines without a GPU: record where the model is when it is scored.
+    moved_to = []
+    original_to = torch.nn.Module.to
+
+    def spy_to(self, *args, **kwargs):
+        moved_to.append(args[0] if args else kwargs.get("device"))
+        return original_to(self, *args, **kwargs)
+
+    seen = {}
+
+    def spy_evaluate(model, config, tokenizer, device):
+        seen.setdefault("moves_before_first_score", len(moved_to))
+        return {"val": [0.5] * 3, "test": [0.5] * 3}
+
+    monkeypatch.setattr(torch.nn.Module, "to", spy_to)
+    monkeypatch.setattr(update_module, "evaluate", spy_evaluate)
+
+    update(config, 1, lambda c: make_model(), tokenizer, torch.device("cpu"), champion_dir)
+
+    assert seen["moves_before_first_score"] >= 1

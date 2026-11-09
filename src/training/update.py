@@ -56,6 +56,9 @@ def update(config: dict, t: int, make_base, tokenizer, device, champion_dir=None
         model, champion_scores = add_lora(base, config), None
     else:
         model = PeftModel.from_pretrained(base, champion_dir, is_trainable=True)
+        # Loading puts the model on the CPU. Move it first: on a GPU the champion is scored
+        # before train_step, which is the first place that moves the model.
+        model.to(device)
         # Scored before any training, so these are the champion's own numbers.
         champion_scores = evaluate(model, config, tokenizer, device)
 
