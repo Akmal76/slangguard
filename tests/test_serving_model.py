@@ -67,3 +67,22 @@ def test_predictions_do_not_depend_on_the_batch(make_model, tokenizer):
 
     for label in alone:
         assert alone[label] == pytest.approx(in_batch[label], abs=1e-5)
+
+
+def test_predict_detailed_counts_words_and_word_pieces(make_model, tokenizer):
+    model = SentimentModel(make_model(), tokenizer, INFO, max_length=8)
+
+    results = model.predict_detailed(["Enak, BANGET!", "biasa"])
+
+    assert [(r.words, r.pieces) for r in results] == [(2, 2), (1, 1)]
+    assert results[0].probabilities == model.predict(["enak banget"])[0]
+
+
+def test_predict_detailed_counts_an_unknown_word_as_one_piece_in_this_tiny_vocabulary(
+    make_model, tokenizer
+):
+    model = SentimentModel(make_model(), tokenizer, INFO, max_length=8)
+
+    (result,) = model.predict_detailed(["enak zzzz"])
+
+    assert (result.words, result.pieces) == (2, 2)  # zzzz becomes one [UNK]
