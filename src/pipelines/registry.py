@@ -82,18 +82,23 @@ def set_champion(model_name: str, version: str) -> None:
 
 
 def get_champion(model_name: str) -> dict | None:
-    """The version the alias `champion` points to, or None if there is none yet."""
+    """The version the alias `champion` points to, or None if there is none yet.
+
+    This reads the model's list of aliases instead of asking for the alias directly. Servers
+    answer a missing alias with different errors (DagsHub gives a bare INVALID_PARAMETER_VALUE),
+    so the error text can not be trusted to tell "no champion yet" from a real failure.
+    """
+    client = MlflowClient()
     try:
-        version = MlflowClient().get_model_version_by_alias(model_name, CHAMPION)
+        model = client.get_registered_model(model_name)
     except MlflowException as error:
-        # Two cases mean "no champion yet": the model does not exist (RESOURCE_DOES_NOT_EXIST),
-        # or it exists but the alias is not set (reported as INVALID_PARAMETER_VALUE).
-        message = str(error).lower()
-        if error.error_code == "RESOURCE_DOES_NOT_EXIST" or (
-            "alias" in message and "not found" in message
-        ):
+        if error.error_code == "RESOURCE_DOES_NOT_EXIST":
             return None
         raise  # a wrong password or a server error must not look like "no champion"
+    number = model.aliases.get(CHAMPION)
+    if number is None:
+        return None
+    version = client.get_model_version(model_name, str(number))
     return {
         "version": str(version.version),
         "run_id": version.run_id,
