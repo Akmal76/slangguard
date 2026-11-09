@@ -43,6 +43,17 @@ def log_candidate(experiment: str, metrics: dict, decision: Decision, adapter_di
         return run.info.run_id
 
 
+def log_drift_check(
+    experiment: str, period: str, score: float, significant: bool, html_path
+) -> None:
+    """Log the drift check of a new period, whatever its outcome, so the history is complete."""
+    mlflow.set_experiment(experiment)
+    with mlflow.start_run(run_name=f"drift-{period}"):
+        mlflow.log_param("period", period)
+        mlflow.log_metrics({"drift_score": score, "drift_significant": float(significant)})
+        mlflow.log_artifact(str(html_path))
+
+
 def register_version(model_name: str, run_id: str, period: str) -> str:
     """Register the adapter of a run as a new model version and return its number.
 
@@ -56,7 +67,8 @@ def register_version(model_name: str, run_id: str, period: str) -> str:
         if error.error_code != "RESOURCE_ALREADY_EXISTS":
             raise
     source = f"{mlflow.get_run(run_id).info.artifact_uri}/adapter"
-    return client.create_model_version(model_name, source, run_id, tags={"period": period}).version
+    version = client.create_model_version(model_name, source, run_id, tags={"period": period})
+    return str(version.version)  # always text: some calls give a number, others text
 
 
 def tag_version(model_name: str, version: str, **tags: str) -> None:
@@ -83,7 +95,7 @@ def get_champion(model_name: str) -> dict | None:
             return None
         raise  # a wrong password or a server error must not look like "no champion"
     return {
-        "version": version.version,
+        "version": str(version.version),
         "run_id": version.run_id,
         "source": version.source,
         "tags": dict(version.tags),

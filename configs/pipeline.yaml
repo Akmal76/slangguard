@@ -35,3 +35,7 @@ kaggle:
   poll_seconds: 30
   # A job that runs longer than this is treated as failed, so the GPU is not left running.
   timeout_minutes: 45
+
+huggingface:
+  # Each champion is a commit in this public repo. The Kaggle job and the API download from it.
+  repo: amc76/slangguard-pipeline
