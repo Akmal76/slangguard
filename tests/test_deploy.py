@@ -2,7 +2,7 @@ import pytest
 
 from src.pipelines import deploy as deploy_module
 from src.pipelines.deploy import deploy, wait_for_revision, write_champion_env
-from src.serving.app import load_serving_config
+from src.serving.config import load_serving_config
 
 CONFIG_TEXT = "adapter_repo: user/original\nadapter_revision: aaa\nmax_texts: 32\n"
 

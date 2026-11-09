@@ -8,15 +8,14 @@ documentation is at /docs.
 
 import os
 import time
-from collections.abc import Mapping
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-import yaml
 from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from src.data.clean import normalize_text
+from src.serving.config import load_serving_config
 from src.serving.metrics import Metrics
 from src.serving.model import SentimentModel
 
@@ -103,19 +102,6 @@ def create_app(config: dict, model: SentimentModel | None = None) -> FastAPI:
         return PredictResponse(predictions=predictions, model=sentiment.info)
 
     return app
-
-
-# Environment variables that replace the model in configs/serving.yaml. The pipeline sets them
-# (through champion.env) when it promotes a new model.
-ENV_OVERRIDES = {"ADAPTER_REPO": "adapter_repo", "ADAPTER_REVISION": "adapter_revision"}
-
-
-def load_serving_config(path: Path, env: Mapping[str, str]) -> dict:
-    config = yaml.safe_load(path.read_text())
-    for name, key in ENV_OVERRIDES.items():
-        if env.get(name):  # an empty value counts as not set
-            config[key] = env[name]
-    return config
 
 
 def create_default_app() -> FastAPI:
