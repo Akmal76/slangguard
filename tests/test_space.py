@@ -1,17 +1,9 @@
-import ast
 from pathlib import Path
 
 import pytest
 
 from src.pipelines import space as space_module
-from src.pipelines.space import (
-    DEMO_FILES,
-    SOURCES,
-    assemble,
-    point_at_champion,
-    publish,
-    wait_until_running,
-)
+from src.pipelines.space import PAGE_FILES, assemble, publish, update_model, wait_until_running
 
 ROOT = Path(".")
 
@@ -24,14 +16,10 @@ class FakeApi:
     def create_repo(self, repo_id, **kwargs):
         self.calls.append(("create_repo", repo_id, kwargs))
 
-    def add_space_variable(self, repo_id, key, value):
-        self.calls.append(("variable", key, value))
-
     def upload_folder(self, **kwargs):
-        self.calls.append(("upload", kwargs["repo_id"], kwargs["repo_type"]))
-
-    def restart_space(self, repo_id):
-        self.calls.append(("restart", repo_id))
+        self.calls.append(
+            ("upload", kwargs.get("path_in_repo"), kwargs["repo_id"], kwargs["commit_message"])
+        )
 
     def get_space_runtime(self, repo_id):
         self.calls.append(("stage", repo_id))
@@ -43,90 +31,64 @@ def no_sleep(monkeypatch):
     monkeypatch.setattr(space_module.time, "sleep", lambda seconds: None)
 
 
-def test_assemble_copies_exactly_the_listed_files(tmp_path):
-    names = assemble(ROOT, tmp_path)
-
-    on_disk = sorted(str(p.relative_to(tmp_path)) for p in tmp_path.rglob("*") if p.is_file())
-    assert on_disk == sorted([*DEMO_FILES, *SOURCES])
-    assert sorted(names) == on_disk
-
-
-def test_the_space_gets_no_data_and_no_notebooks(tmp_path):
-    assemble(ROOT, tmp_path)
-
-    files = [p.name for p in tmp_path.rglob("*") if p.is_file()]
-    assert not any(name.endswith((".tsv", ".csv", ".ipynb", ".dvc")) for name in files)
+@pytest.fixture
+def model_dir(tmp_path):
+    folder = tmp_path / "exported"
+    (folder / "onnx").mkdir(parents=True)
+    (folder / "onnx" / "model_quantized.onnx").write_bytes(b"weights")
+    (folder / "config.json").write_text("{}")
+    return folder
 
 
-def test_the_copied_code_is_the_projects_code(tmp_path):
-    assemble(ROOT, tmp_path)
+def test_assemble_puts_the_page_and_the_model_in_one_folder(tmp_path, model_dir):
+    names = assemble(ROOT, model_dir, tmp_path / "space")
 
-    for name in ("src/serving/model.py", "src/data/clean.py", "configs/serving.yaml"):
-        assert (tmp_path / name).read_text() == (ROOT / name).read_text()
-
-
-def imported_project_modules(folder: Path) -> set[str]:
-    modules = set()
-    for path in folder.rglob("*.py"):
-        for node in ast.walk(ast.parse(path.read_text())):
-            if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith("src"):
-                modules.add(node.module)
-            elif isinstance(node, ast.Import):
-                modules |= {a.name for a in node.names if a.name.startswith("src")}
-    return modules
+    assert set(PAGE_FILES) <= set(names)
+    assert "model/onnx/model_quantized.onnx" in names
+    assert "model/config.json" in names
+    assert len(names) == len(PAGE_FILES) + 2
 
 
-def test_every_project_module_the_space_imports_is_in_the_space(tmp_path):
-    """A forgotten file would only show up as a failed build on Hugging Face."""
-    assemble(ROOT, tmp_path)
+def test_the_copied_page_is_the_projects_page(tmp_path, model_dir):
+    assemble(ROOT, model_dir, tmp_path / "space")
 
-    for module in imported_project_modules(tmp_path):
-        relative = Path(*module.split("."))
-        assert (tmp_path / relative).with_suffix(".py").exists() or (
-            tmp_path / relative / "__init__.py"
-        ).exists(), module
+    for name in PAGE_FILES:
+        assert (tmp_path / "space" / name).read_text() == (ROOT / "web" / name).read_text()
 
 
-def test_the_space_requirements_pin_every_package_the_model_needs():
-    text = (ROOT / "demo/requirements.txt").read_text()
+def test_the_space_gets_no_dataset_files(tmp_path, model_dir):
+    names = assemble(ROOT, model_dir, tmp_path / "space")
 
-    for package in ("torch==", "transformers==", "peft==", "pyyaml=="):
-        assert package in text
+    assert not any(name.endswith((".tsv", ".csv", ".ipynb", ".dvc")) for name in names)
 
 
-def test_publish_creates_a_gradio_space_and_sets_the_model_before_uploading(tmp_path):
+def test_publish_creates_a_static_space_and_uploads_everything(tmp_path):
     api = FakeApi()
 
-    publish(api, "me/demo", tmp_path, "me/champions", "rev1")
+    publish(api, "me/demo", tmp_path)
 
-    kinds = [call[0] for call in api.calls]
-    assert kinds == ["create_repo", "variable", "variable", "upload"]
-    assert api.calls[0][2] == {"repo_type": "space", "space_sdk": "gradio", "exist_ok": True}
-    assert [call[1:] for call in api.calls[1:3]] == [
-        ("ADAPTER_REPO", "me/champions"),
-        ("ADAPTER_REVISION", "rev1"),
-    ]
-    assert api.calls[3] == ("upload", "me/demo", "space")
+    assert api.calls[0] == (
+        "create_repo",
+        "me/demo",
+        {"repo_type": "space", "space_sdk": "static", "exist_ok": True},
+    )
+    assert api.calls[1][:3] == ("upload", None, "me/demo")
 
 
-def test_point_at_champion_sets_both_variables_and_restarts():
+def test_update_model_replaces_only_the_model_folder_and_names_the_revision(tmp_path):
     api = FakeApi()
 
-    point_at_champion(api, "me/demo", "me/champions", "rev2")
+    update_model(api, "me/demo", tmp_path, "abcdef1234567890")
 
-    assert api.calls == [
-        ("variable", "ADAPTER_REPO", "me/champions"),
-        ("variable", "ADAPTER_REVISION", "rev2"),
-        ("restart", "me/demo"),
-    ]
+    assert api.calls == [("upload", "model", "me/demo", "Serve champion revision abcdef12")]
 
 
 def test_wait_returns_when_the_space_runs():
-    api = FakeApi(["BUILDING", "APP_STARTING", "RUNNING"])
+    api = FakeApi(["BUILDING", "RUNNING"])
 
     wait_until_running(api, "me/demo")
 
-    assert len(api.calls) == 3
+    assert len(api.calls) == 2
 
 
 def test_wait_raises_when_the_build_fails():

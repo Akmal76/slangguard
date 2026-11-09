@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SlangGuard demo</title>
+  <meta name="description" content="Sentiment of Indonesian text, computed in your browser by a model that keeps up with slang.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>SlangGuard</h1>
+      <p class="lead">Is this Indonesian sentence negative, neutral or positive? The model runs
+        <strong>in your browser</strong>. Nothing you type is sent anywhere.</p>
+    </header>
+
+    <section aria-labelledby="try">
+      <h2 id="try">Try it</h2>
+      <label for="text">Text</label>
+      <textarea id="text" rows="3" maxlength="1000" placeholder="Tulis kalimat di sini..." disabled></textarea>
+      <div class="actions">
+        <button id="classify" type="button" disabled>Classify</button>
+        <span id="status" role="status">Starting...</span>
+      </div>
+      <progress id="progress" max="100" value="0" hidden></progress>
+
+      <p class="hint">Examples</p>
+      <ul id="examples" class="chips"></ul>
+
+      <div id="result" aria-live="polite"></div>
+    </section>
+
+    <section aria-labelledby="about">
+      <h2 id="about">About this model</h2>
+      <p>It is <a href="https://huggingface.co/indobenchmark/indobert-base-p1">IndoBERT</a> with a small
+        LoRA adapter. When the language of new text drifts, the
+        <a href="https://github.com/Akmal76/slangguard">SlangGuard</a> pipeline trains a new adapter and
+        promotes it only if it learns the new slang without forgetting the old. This page follows the
+        promoted model, shown below.</p>
+      <p id="model-info" class="muted"></p>
+      <p><strong>Limits.</strong> The slang drift in the experiments is simulated (real tweets rewritten
+        with a slang lexicon). The model reaches about 0.65 to 0.69 macro-F1 on tweets. It is stored as
+        8-bit integers so it fits in a web page, which changes the label of about 1% of texts, mostly
+        the ones it is unsure about. Do not use it for decisions about people.</p>
+      <p class="muted">First visit downloads about 125 MB, and the browser keeps it afterwards.</p>
+    </section>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

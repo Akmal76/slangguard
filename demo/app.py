@@ -1,10 +1,12 @@
-"""The demo shown on Hugging Face Spaces. It runs the same model code as the API.
+"""A demo to run on this computer, with the same model code as the API.
 
-On a Space this file is the app. To run it here, from the project folder:
+The public demo is the web page in web/ (Gradio Spaces are no longer free). This one is for
+trying the model locally, from the project folder:
 
     PYTHONPATH=. uv run python demo/app.py
 """
 
+import json
 import os
 from pathlib import Path
 
@@ -14,15 +16,9 @@ from src.data.clean import normalize_text
 from src.serving.config import load_serving_config
 from src.serving.model import SentimentModel
 
-# Written by hand. They are not taken from any dataset, because that text may not be shared.
-EXAMPLES = [
-    "Pelayanannya ramah dan makanannya enak sekali.",
-    "Tempatnya kotor dan pelayanannya sangat lambat.",
-    "Hari ini saya bekerja dari rumah saja.",
-    "gokil sih makanannya, mantul banget wkwk",
-    "gue kesel parah sama ojolnya, lama banget",
-    "lagi nunggu kereta, rame bgt",
-]
+# The same sentences as the web page, written by hand. They are not taken from any dataset,
+# because that text may not be shared.
+EXAMPLES = json.loads(Path("web/examples.json").read_text())
 
 DESCRIPTION = """
 Sentiment of Indonesian text: negative, neutral or positive. The model is IndoBERT with a small
