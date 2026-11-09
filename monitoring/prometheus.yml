@@ -1,0 +1,10 @@
+# Prometheus asks the API for its numbers every 15 seconds. The API is the service called
+# "api" in compose.yaml, and /metrics is the endpoint in src/serving/app.py.
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: slangguard-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
