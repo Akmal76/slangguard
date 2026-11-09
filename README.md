@@ -7,8 +7,38 @@ with LoRA + replay, so it learns new slang without forgetting old data.
 ## Status
 
 Done: data pipeline (DVC), baselines, the LoRA + replay method, and a prediction API with
-Docker and CI. Next: drift detection and the automated retraining pipeline.
+Docker and CI. The drift check and the retraining pipeline are written and tested, and their
+first real run on a Kaggle GPU is in progress. Next: monitoring and a demo.
 See [docs/design.md](docs/design.md) for the full design and roadmap.
+
+## Tech stack
+
+**Modeling**
+
+![Python](https://img.shields.io/badge/python-%233670A0.svg?style=for-the-badge&logo=python&logoColor=ffdd54) ![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=pytorch&logoColor=white) ![Hugging Face](https://img.shields.io/badge/huggingface-%23FFD21E.svg?style=for-the-badge&logo=huggingface&logoColor=white)
+
+**Data and experiments**
+
+![DVC](https://img.shields.io/badge/DVC-%23945DD6.svg?style=for-the-badge&logo=dvc&logoColor=white) ![MLflow](https://img.shields.io/badge/mlflow-%230194E2.svg?style=for-the-badge&logo=mlflow&logoColor=white) ![DagsHub](https://img.shields.io/badge/DagsHub-%2300C5A1.svg?style=for-the-badge) ![pandas](https://img.shields.io/badge/Pandas-%23150458.svg?style=for-the-badge&logo=pandas&logoColor=white) ![Jupyter](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white) ![Kaggle](https://img.shields.io/badge/Kaggle-%23035a7d.svg?style=for-the-badge&logo=kaggle&logoColor=white)
+
+**Drift and pipeline**
+
+![Evidently AI](https://img.shields.io/badge/Evidently%20AI-%23ED0500.svg?style=for-the-badge) ![Prefect](https://img.shields.io/badge/Prefect-%23ffffff.svg?style=for-the-badge&logo=prefect&logoColor=black)
+
+**Serving**
+
+![FastAPI](https://img.shields.io/badge/fastapi-%23009688.svg?style=for-the-badge&logo=fastapi&logoColor=white) ![Pydantic](https://img.shields.io/badge/pydantic-%23E92063.svg?style=for-the-badge&logo=pydantic&logoColor=white) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+
+**Quality and tooling**
+
+![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white) ![pytest](https://img.shields.io/badge/pytest-%23ffffff.svg?style=for-the-badge&logo=pytest&logoColor=2f9fe3) ![Ruff](https://img.shields.io/badge/ruff-%23D7FF64.svg?style=for-the-badge&logo=ruff&logoColor=black) ![uv](https://img.shields.io/badge/uv-%23DE5FE9.svg?style=for-the-badge&logo=uv&logoColor=white) ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
+
+**Planned (monitoring and demo)**
+
+![Prometheus](https://img.shields.io/badge/Prometheus-%23E6522C.svg?style=for-the-badge&logo=Prometheus&logoColor=white) ![Grafana](https://img.shields.io/badge/grafana-%23F46800.svg?style=for-the-badge&logo=grafana&logoColor=white) ![Gradio](https://img.shields.io/badge/gradio-%23F97316.svg?style=for-the-badge&logo=gradio&logoColor=white)
+
+Badges are made with [shields.io](https://shields.io) in the style of
+[ileriayo/markdown-badges](https://github.com/ileriayo/markdown-badges).
 
 ## Results
 
