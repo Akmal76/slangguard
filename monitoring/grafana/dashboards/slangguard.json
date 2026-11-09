@@ -6,7 +6,7 @@
   ],
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "refresh": "10s",
   "time": {
     "from": "now-30m",
@@ -93,7 +93,7 @@
       "id": 3,
       "title": "Error share",
       "type": "stat",
-      "description": "Share of /predict requests that did not return 200 in the last 5 minutes (422 means a bad request).",
+      "description": "Share of /predict requests that did not return 200 in the last 5 minutes (422 means a bad request). It shows 0% when there are no errors.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -110,7 +110,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(rate(slangguard_requests_total{endpoint=\"/predict\",status!=\"200\"}[5m])) / sum(rate(slangguard_requests_total{endpoint=\"/predict\"}[5m]))",
+          "expr": "(sum(rate(slangguard_requests_total{endpoint=\"/predict\",status!=\"200\"}[5m])) or vector(0)) / sum(rate(slangguard_requests_total{endpoint=\"/predict\"}[5m]))",
           "legendFormat": "",
           "refId": "A"
         }
