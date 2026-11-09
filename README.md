@@ -6,9 +6,9 @@ with LoRA + replay, so it learns new slang without forgetting old data.
 
 ## Status
 
-Done: data pipeline (DVC), baselines, the LoRA + replay method, and a prediction API with
-Docker and CI. The drift check and the retraining pipeline are written and tested, and their
-first real run on a Kaggle GPU is in progress. Next: monitoring and a demo.
+Done: data pipeline (DVC), baselines, the LoRA + replay method, a prediction API with Docker and
+CI, and the retraining pipeline (drift check, Kaggle GPU, promotion rule, registry, API switch),
+which has run end to end on real services. Next: monitoring and a demo.
 See [docs/design.md](docs/design.md) for the full design and roadmap.
 
 ## Tech stack

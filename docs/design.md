@@ -169,7 +169,7 @@ period, which separates the methods better than the targets do.
 | Forgetting of LoRA + replay | Less than half of naive fine-tune |
 | Training time per update | Less than half of full retrain |
 | API latency (CPU, one sentence) | Under 200 ms |
-| Automated pipeline | From detected drift to a live new model with no manual step |
+| Automated pipeline | From detected drift to a live new model with no manual step. Measured: met, 45 minutes for the P4 update ([pipeline.md](pipeline.md)) |
 
 **Measured for the API (milestone 4)**, one sentence at a time, 100 requests on a laptop
 (Apple Silicon, CPU only), after merging the LoRA adapter into the base model at start:

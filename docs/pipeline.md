@@ -19,12 +19,58 @@ flowchart TD
 
 ## Status
 
-The code and its tests are done (every step is tested, with fakes only for Kaggle, Hugging Face and
-Docker). **The first real run on Kaggle and DagsHub has not been done yet**, so the results of a
-real update (bootstrap champion, then P4) are not in this document. Parts that have run against
-the real service: the Evidently check on the real period data, the local API switch in Docker,
-and Prefect's local server. Parts that have not: the Kaggle dataset and job, the MLflow registry on
-DagsHub (it is tested on a local MLflow), and the upload to the pipeline repository on Hugging Face.
+The pipeline has run end to end on real services: Kaggle GPU, DagsHub, Hugging Face and Docker.
+The results of those runs are in the next section. The only part not shown live is the early stop
+when there is no drift (see "What was not shown live").
+
+## First real runs (9 Nov 2026)
+
+**Bootstrap, P1 to P3.** The first champion (registry version 1, Hugging Face commit `13ac8a98`)
+scored 0.892, 0.667, 0.659 and 0.566 on the test sets of P1 to P4. The same method in the Week 3
+experiments (seed 42, after step 3) scored 0.883, 0.673, 0.638 and 0.576, so the pipeline
+reproduces the experiment to within about 0.02 per period. The runs are not identical because each
+update starts from a new seed.
+
+**Update with P4.** The drift check gave a score of 0.984 and the flow went on. The Kaggle job
+started from champion version 1. The candidate was compared with it on the validation sets, which is
+what the rule uses:
+
+| Period | Champion v1 | Candidate | Change |
+| --- | --- | --- | --- |
+| P1 | 0.882 | 0.886 | +0.004 |
+| P2 | 0.667 | 0.657 | -0.010 |
+| P3 | 0.613 | 0.614 | +0.001 |
+| **P4 (new)** | **0.611** | **0.693** | **+0.082** |
+
+The rule passed it (better on P4, biggest drop on an older period about 0.01, limit 0.02). The
+candidate became version 2 (Hugging Face commit `b187211f`), the alias `champion` moved, and the API
+restarted on the new revision. Its test scores are 0.902, 0.681, 0.687 and 0.657, close to the
+Week 3 result for the same method (0.905, 0.687, 0.689, 0.645).
+
+**Time.** The whole flow took 45 minutes from the command to a live API, with no manual step.
+Little of that is computing:
+
+| Stage | Time |
+| --- | --- |
+| Drift check | 9 s |
+| Kaggle stage (upload data, queue, job, download) | about 26 min, of which the GPU session was 2.4 min and the training itself 28 s |
+| Decision, upload, registry, restart | about 19 min, mostly waiting for DagsHub (a model version takes about a minute to create, and one request had to be retried after a reset connection) |
+
+**What was not shown live.** The early stop when there is no drift was not run on the real
+services. The periods end at P4 and the champion has now learned P4, so there is no next period to
+test it on. That path is covered by a flow test, which uses real Evidently on synthetic text and checks that no
+job is started, and the threshold was calibrated on the real period data (see below).
+
+**Problems the real runs found**, all fixed and covered by tests where a test can see them:
+
+- The Kaggle job image was a CPU image, so the job had no GPU. The image has to come from
+  `kaggle-gpu-images`. Asking for an accelerator with `--accelerator` was not the cause.
+- A champion loaded from disk was scored while still on the CPU, which failed on a GPU. It could only
+  be reproduced on an accelerator, so a test now runs on MPS or CUDA when one exists.
+- DagsHub answers "no champion yet" with an error that has no message, so the registry reads the
+  model's list of aliases instead of the error text.
+- Prefect 3.8 does not start with a new FastAPI, and Prefect 3.9 needs FastAPI 0.150 or older.
+  Evidently does not import with pandas 3.
 
 ## The steps
 
