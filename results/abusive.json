@@ -1,0 +1,80 @@
+{
+  "best_c": 30.0,
+  "tuning_by_c": {
+    "0.3": {
+      "f1_abusive": 0.8338848444738584,
+      "precision_abusive": 0.8129032258064516,
+      "recall_abusive": 0.8559782608695652,
+      "macro_f1": 0.8904823758527841
+    },
+    "1.0": {
+      "f1_abusive": 0.8584842387659289,
+      "precision_abusive": 0.847682119205298,
+      "recall_abusive": 0.8695652173913043,
+      "macro_f1": 0.9070922138612345
+    },
+    "3.0": {
+      "f1_abusive": 0.875085324232082,
+      "precision_abusive": 0.879286694101509,
+      "recall_abusive": 0.8709239130434783,
+      "macro_f1": 0.9184363768790396
+    },
+    "10.0": {
+      "f1_abusive": 0.8770718232044199,
+      "precision_abusive": 0.8918539325842697,
+      "recall_abusive": 0.8627717391304348,
+      "macro_f1": 0.9200173930836915
+    },
+    "30.0": {
+      "f1_abusive": 0.8857938718662952,
+      "precision_abusive": 0.9085714285714286,
+      "recall_abusive": 0.8641304347826086,
+      "macro_f1": 0.9258774257629525
+    },
+    "100.0": {
+      "f1_abusive": 0.8786610878661087,
+      "precision_abusive": 0.9025787965616046,
+      "recall_abusive": 0.8559782608695652,
+      "macro_f1": 0.9212807514019341
+    }
+  },
+  "val_abusive_data": {
+    "f1_abusive": 0.8888888888888888,
+    "precision_abusive": 0.9151079136690647,
+    "recall_abusive": 0.8641304347826086,
+    "macro_f1": 0.9116338790296694
+  },
+  "test_abusive_data": {
+    "f1_abusive": 0.8934993084370678,
+    "precision_abusive": 0.9111424541607899,
+    "recall_abusive": 0.8765264586160109,
+    "macro_f1": 0.9147994467496543
+  },
+  "rows": {
+    "train": 14994,
+    "tuning": 3127,
+    "test": 1928
+  },
+  "sentiment_test_flag_rates": {
+    "p1": {
+      "flagged": 0.03734876380852183,
+      "flagged_positive": 0.0036429872495446266,
+      "has_listed_word": 0.05733824302998422
+    },
+    "p2": {
+      "flagged": 0.02188183807439825,
+      "flagged_positive": 0.017699115044247787,
+      "has_listed_word": 0.03938730853391685
+    },
+    "p3": {
+      "flagged": 0.0175054704595186,
+      "flagged_positive": 0.02654867256637168,
+      "has_listed_word": 0.03282275711159737
+    },
+    "p4": {
+      "flagged": 0.006564551422319475,
+      "flagged_positive": 0.008849557522123894,
+      "has_listed_word": 0.019693654266958426
+    }
+  }
+}
