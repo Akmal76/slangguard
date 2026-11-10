@@ -25,15 +25,18 @@ stages:
               https://raw.githubusercontent.com/okkyibrohim/id-multi-label-hate-speech-and-abusive-language-detection/be98de98e974b65838d2b5145ee2c89e9bf53a6b/re_dataset.csv
             abusive.csv: 
               https://raw.githubusercontent.com/okkyibrohim/id-multi-label-hate-speech-and-abusive-language-detection/be98de98e974b65838d2b5145ee2c89e9bf53a6b/abusive.csv
+          real_reviews:
+            prdect_id.csv: 
+              https://huggingface.co/datasets/ZakyF/PRDECT-ID/resolve/32343a60b0257bf6d14964efbc32f5097201ce2b/PRDECT-ID%20Dataset.csv
           lexicon:
             colloquial_lexicon.csv: 
               https://raw.githubusercontent.com/nasalsabila/kamus-alay/c710fa9f3f8d8727c24f3209f4f6a4b6ecaf6d8b/colloquial-indonesian-lexicon.csv
     outs:
     - path: data/raw
       hash: md5
-      md5: 2e9aad6f7905616a2adbbd46e5675ae4.dir
-      size: 8391076
-      nfiles: 7
+      md5: cd1d54e3e5ceda4e7f40635c1eda8fc4.dir
+      size: 9653253
+      nfiles: 8
   clean:
     cmd: python -m src.data.clean
     deps:
@@ -147,3 +150,34 @@ stages:
       md5: c142257ba932790ba815f274fed61de2.dir
       size: 1425268
       nfiles: 3
+  real_reviews:
+    cmd: python -m src.data.real_reviews
+    deps:
+    - path: data/periods
+      hash: md5
+      md5: 71159218210e213351616e2d07a91f2e.dir
+      size: 3201613
+      nfiles: 12
+    - path: data/raw/real_reviews
+      hash: md5
+      md5: 4ecc0d7253682e611624e1d252abe059.dir
+      size: 1262177
+      nfiles: 1
+    - path: src/data/clean.py
+      hash: md5
+      md5: 60edddf2ae3e432f4af5d5e877e134dc
+      size: 3669
+    - path: src/data/real_reviews.py
+      hash: md5
+      md5: 806cf59f70b9f6232fc36ab4b2a4c03e
+      size: 2506
+    - path: src/data/tsv.py
+      hash: md5
+      md5: 62ce5f6a6e1791f17d038926f4e39118
+      size: 538
+    outs:
+    - path: data/real_reviews
+      hash: md5
+      md5: 15508b53e275634bae83f2da93f3d4c9.dir
+      size: 592643
+      nfiles: 1

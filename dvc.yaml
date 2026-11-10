@@ -52,3 +52,14 @@ stages:
           - split_ratios
     outs:
       - data/abusive
+
+  real_reviews:
+    cmd: python -m src.data.real_reviews
+    deps:
+      - src/data/real_reviews.py
+      - src/data/clean.py
+      - src/data/tsv.py
+      - data/raw/real_reviews
+      - data/periods
+    outs:
+      - data/real_reviews

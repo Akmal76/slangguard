@@ -2,6 +2,7 @@ raw_dir: data/raw
 interim_dir: data/interim
 periods_dir: data/periods
 abusive_dir: data/abusive
+real_reviews_dir: data/real_reviews
 lexicon_path: data/raw/lexicon/colloquial_lexicon.csv
 
 seed: 42
@@ -36,5 +37,9 @@ sources:
     re_dataset.csv: https://raw.githubusercontent.com/okkyibrohim/id-multi-label-hate-speech-and-abusive-language-detection/be98de98e974b65838d2b5145ee2c89e9bf53a6b/re_dataset.csv
     # The authors' list of 125 abusive words and phrases.
     abusive.csv: https://raw.githubusercontent.com/okkyibrohim/id-multi-label-hate-speech-and-abusive-language-detection/be98de98e974b65838d2b5145ee2c89e9bf53a6b/abusive.csv
+  # CC BY 4.0, Sutoyo et al., PRDECT-ID, Data in Brief (2022). A test set only, never used for training.
+  # Mirror on Hugging Face at a fixed commit; the original is on Mendeley (DOI 10.17632/574v66hf2v.1).
+  real_reviews:
+    prdect_id.csv: https://huggingface.co/datasets/ZakyF/PRDECT-ID/resolve/32343a60b0257bf6d14964efbc32f5097201ce2b/PRDECT-ID%20Dataset.csv
   lexicon:
     colloquial_lexicon.csv: https://raw.githubusercontent.com/nasalsabila/kamus-alay/c710fa9f3f8d8727c24f3209f4f6a4b6ecaf6d8b/colloquial-indonesian-lexicon.csv
