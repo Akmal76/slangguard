@@ -37,3 +37,18 @@ stages:
           - reversed_word_count
     outs:
       - data/periods
+
+  abusive:
+    cmd: python -m src.data.abusive
+    deps:
+      - src/data/abusive.py
+      - src/data/clean.py
+      - src/data/split.py
+      - src/data/tsv.py
+      - data/raw/abusive
+    params:
+      - configs/data.yaml:
+          - seed
+          - split_ratios
+    outs:
+      - data/abusive

@@ -20,15 +20,20 @@ stages:
           idsa:
             tweets.tsv: 
               https://raw.githubusercontent.com/ridife/dataset-idsa/ad6726eb22176338ff77819cb73d7088823e3183/Indonesian%20Sentiment%20Twitter%20Dataset%20Labeled.csv
+          abusive:
+            re_dataset.csv: 
+              https://raw.githubusercontent.com/okkyibrohim/id-multi-label-hate-speech-and-abusive-language-detection/be98de98e974b65838d2b5145ee2c89e9bf53a6b/re_dataset.csv
+            abusive.csv: 
+              https://raw.githubusercontent.com/okkyibrohim/id-multi-label-hate-speech-and-abusive-language-detection/be98de98e974b65838d2b5145ee2c89e9bf53a6b/abusive.csv
           lexicon:
             colloquial_lexicon.csv: 
               https://raw.githubusercontent.com/nasalsabila/kamus-alay/c710fa9f3f8d8727c24f3209f4f6a4b6ecaf6d8b/colloquial-indonesian-lexicon.csv
     outs:
     - path: data/raw
       hash: md5
-      md5: c2f8fee89d513d1f1d1b67f83053215b.dir
-      size: 6531628
-      nfiles: 5
+      md5: 2e9aad6f7905616a2adbbd46e5675ae4.dir
+      size: 8391076
+      nfiles: 7
   clean:
     cmd: python -m src.data.clean
     deps:
@@ -105,3 +110,40 @@ stages:
       md5: 71159218210e213351616e2d07a91f2e.dir
       size: 3201613
       nfiles: 12
+  abusive:
+    cmd: python -m src.data.abusive
+    deps:
+    - path: data/raw/abusive
+      hash: md5
+      md5: e5eed5c29ee4944bfa90653243f5d319.dir
+      size: 1859448
+      nfiles: 2
+    - path: src/data/abusive.py
+      hash: md5
+      md5: cfd28e4ab9532962369c768ed55914bf
+      size: 2733
+    - path: src/data/clean.py
+      hash: md5
+      md5: 60edddf2ae3e432f4af5d5e877e134dc
+      size: 3669
+    - path: src/data/split.py
+      hash: md5
+      md5: bcb54952f15362beb617c61152acc867
+      size: 4607
+    - path: src/data/tsv.py
+      hash: md5
+      md5: 62ce5f6a6e1791f17d038926f4e39118
+      size: 538
+    params:
+      configs/data.yaml:
+        seed: 42
+        split_ratios:
+          train: 0.7
+          val: 0.15
+          test: 0.15
+    outs:
+    - path: data/abusive
+      hash: md5
+      md5: c142257ba932790ba815f274fed61de2.dir
+      size: 1425268
+      nfiles: 3

@@ -1,6 +1,7 @@
 raw_dir: data/raw
 interim_dir: data/interim
 periods_dir: data/periods
+abusive_dir: data/abusive
 lexicon_path: data/raw/lexicon/colloquial_lexicon.csv
 
 seed: 42
@@ -30,5 +31,10 @@ sources:
     test.tsv: https://raw.githubusercontent.com/IndoNLP/indonlu/ce728f6926a36174b9923dfe49d6a6839b6e9bb7/dataset/smsa_doc-sentiment-prosa/test_preprocess.tsv
   idsa:
     tweets.tsv: https://raw.githubusercontent.com/ridife/dataset-idsa/ad6726eb22176338ff77819cb73d7088823e3183/Indonesian%20Sentiment%20Twitter%20Dataset%20Labeled.csv
+  # CC BY-NC-SA 4.0, Ibrohim and Budi (2019). Used only to detect abusive words, never for sentiment.
+  abusive:
+    re_dataset.csv: https://raw.githubusercontent.com/okkyibrohim/id-multi-label-hate-speech-and-abusive-language-detection/be98de98e974b65838d2b5145ee2c89e9bf53a6b/re_dataset.csv
+    # The authors' list of 125 abusive words and phrases.
+    abusive.csv: https://raw.githubusercontent.com/okkyibrohim/id-multi-label-hate-speech-and-abusive-language-detection/be98de98e974b65838d2b5145ee2c89e9bf53a6b/abusive.csv
   lexicon:
     colloquial_lexicon.csv: https://raw.githubusercontent.com/nasalsabila/kamus-alay/c710fa9f3f8d8727c24f3209f4f6a4b6ecaf6d8b/colloquial-indonesian-lexicon.csv
