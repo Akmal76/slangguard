@@ -8,7 +8,8 @@ with LoRA + replay, so it learns new slang without forgetting old data.
 
 Done: data pipeline (DVC), baselines, the LoRA + replay method, a prediction API with Docker and
 CI, the retraining pipeline (drift check, Kaggle GPU, promotion rule, registry, API switch) run end to
-end on real services, monitoring with Prometheus and Grafana, and a public demo.
+end on real services, monitoring with Prometheus and Grafana, a public demo, and a separate
+abusive language flag in the API.
 
 **Try it:** <https://huggingface.co/spaces/amc76/slangguard-demo>. The model runs in your browser, so
 nothing you type is sent anywhere.
@@ -79,12 +80,24 @@ curl -X POST localhost:8000/predict -H 'Content-Type: application/json' \
   -d '{"texts": ["makanannya enak banget, pelayanannya ramah", "parah sih, lama banget nunggunya"]}'
 ```
 
-The answer has a label and the three class probabilities for each text, in the same order.
+The answer has a sentiment label and the three class probabilities for each text, in the same
+order, and a separate flag for abusive language (`abusive` and `abusive_score`), see below.
 Interactive documentation is at <http://localhost:8000/docs>, and `GET /health` shows the model
 version. Stop with `docker compose down`. Without Docker:
 `uv run uvicorn src.serving.app:create_default_app --factory`.
 
 One sentence takes about 60 ms in Docker on a laptop CPU, and the container uses about 1 GB.
+
+## Abusive language flag
+
+Sentiment is not rudeness: "kontol" alone can score as neutral in sentiment. So a second small
+model (TF-IDF over letter groups and logistic regression, 1.3 MB) flags abusive words, and the
+API returns it next to the sentiment: `"abusive": true, "abusive_score": 1.0`. F1 is 0.893 on its
+own test set. Its first version flagged plain praise like "enak banget", which only showed up when
+it was checked on this project's own text, and the fix is described in
+[docs/abusive.md](docs/abusive.md). The model is CC BY-NC-SA 4.0 because its data is:
+[amc76/slangguard-abusive](https://huggingface.co/amc76/slangguard-abusive). The demo in the
+browser does not show it yet.
 
 ## Monitoring
 
