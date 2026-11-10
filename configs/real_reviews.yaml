@@ -1,0 +1,24 @@
+# How the model is judged on real shopper reviews (PRDECT-ID). Written BEFORE the first run, and
+# the model is never tuned on this set.
+#
+# PRDECT-ID has no neutral class, and its label follows the star rating: 405 of the 462 reviews
+# with 3 stars are "negative", although many of them read as neutral or mixed.
+
+data_path: data/real_reviews/reviews.tsv
+results_path: results/real_reviews.json
+
+# The model people use is the one in the browser demo: the pipeline champion, 8-bit.
+# The other two are reported for comparison only.
+browser_model_dir: web/model
+champion_config: configs/serving.yaml # the API model
+batch_size: 32
+bootstrap_resamples: 1000
+seed: 42
+
+# Rule 1 (main): macro-F1 over the two real classes, positive and negative, on every review.
+# A "neutral" prediction is a miss for the true class, and not a class of its own.
+# Rule 2: the same, without the 3-star reviews, where the label is least clear.
+# Targets are for the browser model.
+targets:
+  all_reviews: 0.85
+  without_3_stars: 0.90

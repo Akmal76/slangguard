@@ -1,0 +1,85 @@
+{
+  "reviews": 5257,
+  "targets": {
+    "all_reviews": 0.85,
+    "without_3_stars": 0.9
+  },
+  "browser_int8": {
+    "all_reviews": {
+      "f1": 0.9240935168416515,
+      "ci95": [
+        0.9178385160853875,
+        0.9300367336325586
+      ],
+      "reviews": 5257
+    },
+    "without_3_stars": {
+      "f1": 0.9332047438721455,
+      "ci95": [
+        0.9272044549234562,
+        0.9387749779231389
+      ],
+      "reviews": 4799
+    },
+    "neutral_share": 0.09777439604337074,
+    "model": {
+      "base_model": "indobenchmark/indobert-base-p1",
+      "base_revision": "c2cd0b51ddce6580eb35263b39b0a1e5fb0a39e2",
+      "adapter_repo": "amc76/slangguard-pipeline",
+      "adapter_revision": "b187211f67289abe1f686d336c0285dcf9a3c679",
+      "weights": "int8"
+    }
+  },
+  "champion_float": {
+    "all_reviews": {
+      "f1": 0.9229003119201207,
+      "ci95": [
+        0.9168459431149787,
+        0.9286588322627379
+      ],
+      "reviews": 5257
+    },
+    "without_3_stars": {
+      "f1": 0.931985009970906,
+      "ci95": [
+        0.9260456576881266,
+        0.9375475784498177
+      ],
+      "reviews": 4799
+    },
+    "neutral_share": 0.09986684420772303,
+    "model": {
+      "base_model": "indobenchmark/indobert-base-p1",
+      "adapter_repo": "amc76/slangguard-pipeline",
+      "adapter_revision": "b187211f67289abe1f686d336c0285dcf9a3c679"
+    }
+  },
+  "api_model": {
+    "all_reviews": {
+      "f1": 0.9211990621531372,
+      "ci95": [
+        0.9151566188280736,
+        0.9269484513476033
+      ],
+      "reviews": 5257
+    },
+    "without_3_stars": {
+      "f1": 0.9304153348323568,
+      "ci95": [
+        0.9244463102742123,
+        0.9360860293034091
+      ],
+      "reviews": 4799
+    },
+    "neutral_share": 0.10785619174434088,
+    "model": {
+      "base_model": "indobenchmark/indobert-base-p1",
+      "adapter_repo": "amc76/slangguard-indobert-lora-replay",
+      "adapter_revision": "0394a41247d2bc37b51d11f1ad9b795b1bc5e509"
+    }
+  },
+  "abusive_flag": {
+    "all": 0.019402701160357617,
+    "positive_reviews": 0.007142857142857143
+  }
+}
