@@ -15,6 +15,7 @@ from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from src.data.clean import normalize_text
+from src.serving.abusive import AbusiveDetector
 from src.serving.config import load_serving_config
 from src.serving.metrics import Metrics
 from src.serving.model import SentimentModel
@@ -27,6 +28,9 @@ class PredictRequest(BaseModel):
 class Prediction(BaseModel):
     label: str
     probabilities: dict[str, float]
+    # From the separate abusive language detector. Empty when the API runs without it.
+    abusive: bool | None = None
+    abusive_score: float | None = None
 
 
 class PredictResponse(BaseModel):
@@ -46,14 +50,22 @@ def check_texts(texts: list[str], config: dict) -> None:
             raise HTTPException(422, f"Text {i} has no words in it")
 
 
-def create_app(config: dict, model: SentimentModel | None = None) -> FastAPI:
-    """Build the API. Without a model, the one named in the config is loaded at start."""
+def create_app(
+    config: dict, model: SentimentModel | None = None, abusive: AbusiveDetector | None = None
+) -> FastAPI:
+    """Build the API. Models that are not given are loaded at start from the config.
+
+    The abusive language detector is loaded only if the config names one.
+    """
 
     metrics = Metrics()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         app.state.model = model or SentimentModel.load(config)
+        app.state.abusive = abusive or (
+            AbusiveDetector.load(config) if "abusive_repo" in config else None
+        )
         info = app.state.model.info
         metrics.model_info.labels(info["adapter_repo"], info["adapter_revision"]).set(1)
         yield
@@ -83,7 +95,10 @@ def create_app(config: dict, model: SentimentModel | None = None) -> FastAPI:
 
     @app.get("/health")
     def health(request: Request):
-        return {"status": "ok", "model": request.app.state.model.info}
+        body = {"status": "ok", "model": request.app.state.model.info}
+        if request.app.state.abusive:
+            body["abusive_model"] = request.app.state.abusive.info
+        return body
 
     # A plain `def`, not `async def`: FastAPI runs it in a worker thread, so a slow
     # prediction does not block the server.
@@ -93,11 +108,18 @@ def create_app(config: dict, model: SentimentModel | None = None) -> FastAPI:
         sentiment = request.app.state.model
         results = sentiment.predict_detailed(body.texts)
         metrics.record_predictions(results)
+        detector = request.app.state.abusive
+        flags = detector.predict(body.texts) if detector else [None] * len(results)
+        if detector:
+            metrics.record_abusive(flags)
         predictions = [
             Prediction(
-                label=max(r.probabilities, key=r.probabilities.get), probabilities=r.probabilities
+                label=max(r.probabilities, key=r.probabilities.get),
+                probabilities=r.probabilities,
+                abusive=flag.abusive if flag else None,
+                abusive_score=flag.score if flag else None,
             )
-            for r in results
+            for r, flag in zip(results, flags, strict=True)
         ]
         return PredictResponse(predictions=predictions, model=sentiment.info)
 

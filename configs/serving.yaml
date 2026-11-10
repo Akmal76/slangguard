@@ -13,3 +13,10 @@ max_length: 128
 # Limits on one request, so a single call cannot use all the memory.
 max_texts: 32
 max_chars: 1000
+
+# The abusive language detector, a separate small model (CC BY-NC-SA 4.0). It is a pickle, so
+# the revision must stay a fixed commit of our own repo. Remove these lines to run without it.
+abusive_repo: amc76/slangguard-abusive
+abusive_revision: eb5baea2ba8a591f4bbc02203065fb80c6391750
+abusive_file: model.joblib
+abusive_threshold: 0.5

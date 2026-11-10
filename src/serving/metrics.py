@@ -36,6 +36,12 @@ class Metrics:
             ["label"],
             registry=self.registry,
         )
+        self.abusive = Counter(
+            "slangguard_abusive_texts_total",
+            "Texts the abusive language detector flagged, or not.",
+            ["abusive"],
+            registry=self.registry,
+        )
         self.words = Histogram(
             "slangguard_text_words",
             "Words per text, after cleaning",
@@ -63,6 +69,10 @@ class Metrics:
             self.predictions.labels(label).inc()
             self.words.observe(result.words)
             self.pieces_per_word.observe(result.pieces / result.words)
+
+    def record_abusive(self, results) -> None:
+        for result in results:
+            self.abusive.labels(str(result.abusive).lower()).inc()
 
     def render(self) -> tuple[bytes, str]:
         return generate_latest(self.registry), CONTENT_TYPE_LATEST
